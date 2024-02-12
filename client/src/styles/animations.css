@@ -1,0 +1,19 @@
+@keyframes sunAnimation {
+    0% {
+      /* Initial state of the sun */
+      transform: scale(1);
+    }
+    50% {
+      /* Intermediate state of the sun */
+      transform: scale(1.2);
+    }
+    100% {
+      /* Final state of the sun */
+      transform: scale(1);
+    }
+  }
+  
+  .animate-sun {
+    animation: sunAnimation 0.5s linear;
+  }
+  

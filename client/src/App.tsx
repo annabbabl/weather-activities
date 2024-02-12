@@ -1,22 +1,24 @@
-import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
+import React from 'react';
+import './App.css';
+import UpperBar from './pages/navigation/upperBar.tsx';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 
 function App() {
-  const [data, setData] = React.useState(null);
-
-  React.useEffect(() => {
-    fetch("/api")
-      .then((res) => res.json())
-      .then((data) => setData(data.message));
-  }, []);
 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>{!data ? "Loading..." : data}</p>
-      </header>
+      <Router> {/* Move Router to a higher level */}
+        <UpperBar />
+        <div className="App-content">
+          <header>{/* Your header content */}</header>
+          <main>
+            <Routes>
+              <Route path="/saved" element={<div>home</div>} />
+            </Routes>
+          </main>
+        </div>
+      </Router>
     </div>
   );
 }
