@@ -128,3 +128,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+client/public/favicon.ico
+client/public/logo192.png
+client/public/logo512.png
+client/README.md
