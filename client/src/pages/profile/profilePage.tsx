@@ -4,19 +4,19 @@ import Avatar from '@mui/material/Avatar';
 import { useTranslation } from 'react-i18next';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import { FIREBASE_AUTH, FIRESTORE, FIRE_STORAGE } from '../../api/firebase/firebase.config.ts';
+import { FIREBASE_AUTH, FIRESTORE, FIRE_STORAGE } from '../../api/firebase/firebase.config';
 import { PostEdit, UserEdit } from '../../types/databaseTypes';
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { collection, doc, getDoc, getDocs, onSnapshot, query, updateDoc, where } from "firebase/firestore";
 import { ReactSVG } from 'react-svg';
-import { StandartBlueWave } from '../shared/waves.tsx';
+import { StandartBlueWave } from '../shared/waves';
 import { AuthProps } from '../../types/component.props';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { Button as FileUpload, styled } from '@mui/material';
-import { SetAlert } from '../../constants/popUps.tsx';
-import { EditProfile } from './editProfile.tsx';
-import Loading from '../shared/loadingScreen.tsx';
-import React from 'react';
+import { SetAlert } from '../../constants/popUps';
+import { EditProfile } from './editProfile';
+import Loading from '../shared/loadingScreen';
+
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',

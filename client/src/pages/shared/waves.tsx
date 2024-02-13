@@ -1,6 +1,6 @@
 import Wave from 'react-wavify'
-import { GOOD_WEATHER_COLORS } from '../../constants/theme.ts'
-import React from 'react'
+import { GOOD_WEATHER_COLORS } from '../../constants/theme'
+
 
 const StandartBlueWave = () => (
   <Wave fill={GOOD_WEATHER_COLORS.thirdColor}

@@ -5,19 +5,15 @@ import {
     Typography,
 } from "@material-tailwind/react";
 import {Link} from 'react-router-dom';
-import '../constants/i18next.ts'
+import '../constants/i18next'
 import { useTranslation } from "react-i18next";
-import { StandartBlueWave } from "./shared/waves.tsx";
+import { StandartBlueWave } from "./shared/waves";
 import { useState } from "react";
-import { FIREBASE_AUTH, FIRESTORE } from "../api/firebase/firebase.config.ts";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useNavigate } from 'react-router-dom'; 
-import { User } from "../types/databaseTypes";
-import { collection, doc, setDoc } from "firebase/firestore";
 import { ReactSVG } from "react-svg";
-import {SetAlert} from "../constants/popUps.tsx";
+import {SetAlert} from "../constants/popUps";
 import { DefautlProps } from "../types/component.props";
-import Loading from "./shared/loadingScreen.tsx";
+import Loading from "./shared/loadingScreen";
 import React from "react";
 
 
@@ -25,8 +21,6 @@ import React from "react";
 export function RegistrationForm({ setError, setMessage, message, error }: DefautlProps) {
     const { t } = useTranslation();
 
-    const usersCollection = collection(FIRESTORE, 'users');
-    const createdAt = Date.now();
     const navigate = useNavigate(); // Initialize the useNavigate hook
 
     const [username, setUsername] = useState('')
@@ -36,47 +30,33 @@ export function RegistrationForm({ setError, setMessage, message, error }: Defau
 
    
     const handleRegistration = async () => {
-      try{
-        setLoading(true)
-
-        if(username === null){
-          console.log(t('registrationFail'))
-        }else{
-          const response = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password)
-        
-          const newUser : User = {
-            email: email,
-            username: username,
-            loggedIn: false,
-            password: password,
-            created_at: createdAt
-          }
-          const userDocRef = doc(usersCollection, response.user.uid);
-          
-          setDoc(userDocRef, newUser)
-            .then(async () => {
-              console.log('Document written with ID:', response.user.uid);
-              await updateProfile(response.user, { displayName: username });
-            })
-            .catch((error: Error) => {
-              console.error('Error adding document:', error);
-              setMessage?.(t('registerError'))
-              setError?.(true)
-          });    
+        try {
+            setLoading(true);
+    
+            const response = await fetch('http://localhost:3001/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password, username }),
+            });
+    
+            if (!response.ok) {
+                throw new Error('Registration failed');
+            }
+    
+            const data = await response.json();
+            console.log('Registration successful', data);
+            setMessage?.(t('registered'));
+            navigate('/profile');
+        } catch (error) {
+            console.error(error);
+            setMessage?.(t('registerError'));
+            setError?.(true);
+        } finally {
+            setLoading(false);
         }
-        navigate('/profile');
-        setMessage?.(t('registered'))
-
-      }catch(error: any){
-        console.log(error)
-        setMessage?.(t('registerError'))
-        setError?.(true)
-        throw error
-      }finally{
-        setLoading(false)
-      }
     };
-
 
 
     return (

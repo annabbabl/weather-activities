@@ -1,19 +1,58 @@
-const express = require("express");
-const path = require('path');
+import express, { Request, Response, NextFunction } from 'express';
+import path from 'path';
+import cors from "cors";
+import { 
+  indexRouter, 
+  testAPIRouter, 
+  usersRouter, 
+  registrationRouter,
+  loginRouter 
+} from './routes'; 
+import cookieParser from 'cookie-parser';
+import dotenv from 'dotenv';
+
+
+dotenv.config();
+
+interface ErrorWithStatus extends Error {
+  status?: number;
+}
 
 const PORT = process.env.PORT || 3001;
-
 const app = express();
+app.listen(PORT);
 
-// Have Node serve the files for our built React app
+
+app.set("users",path.join(__dirname, "users"))
+app.set("users engine", "jade")
+
+app.use(cors());
 app.use(express.static(path.resolve(__dirname, '../client/build')));
 
-// Handle GET requests to /api route
-app.get("/api", (req, res) => {
-  res.json({ message: "Hello from server!" });
-});
+app.use(express.json())
+app.use(express.urlencoded({extended:false}))
+app.use(cookieParser())
+app.use(express.static(path.join(__dirname, "public")))
 
-// All other GET requests not handled before will return our React app
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+app.use("/", indexRouter)
+app.use("/users", usersRouter)
+app.use("/textAPI", testAPIRouter)
+app.use("/login", loginRouter)
+app.use("/registration", registrationRouter)
+
+
+app.use(function(err: ErrorWithStatus, req: Request, res: Response, next: NextFunction) {
+  res.locals.message = err.message;
+  res.locals.error = req.app.get("env") === "development" ? err : {};
+
+  res.status(err.status || 500);
+
+  res.render("error");
 });
+module.exports = app
+
+
+
+
+
+

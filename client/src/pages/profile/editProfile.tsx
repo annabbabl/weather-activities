@@ -6,17 +6,17 @@ import {
     Typography,
   } from "@material-tailwind/react";
 import { useState } from "react";
-import '../../constants/i18next.ts'
+import '../../constants/i18next'
 import { useTranslation } from "react-i18next";
 import { AuthProps } from "../../types/component.props";
 import { collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { User, UserEdit } from '../../types/databaseTypes';
-import { FIREBASE_AUTH, FIRESTORE } from "../../api/firebase/firebase.config.ts";
+import { FIREBASE_AUTH, FIRESTORE } from "../../api/firebase/firebase.config";
 import { updatePassword, updateProfile } from "firebase/auth";
-import {SetAlert} from "../../constants/popUps.tsx";
-import Loading from "../shared/loadingScreen.tsx";
-import React from "react";
-   
+import {SetAlert} from "../../constants/popUps";
+import Loading from "../shared/loadingScreen";
+
+
 export function EditProfile({username, password, email, setEmail, setPassword, setUsername, setEdit}: AuthProps) {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);

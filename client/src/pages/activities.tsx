@@ -1,6 +1,6 @@
 import { TabContext, TabList  } from '@mui/lab';
 import Tab from '@mui/material/Tab';
-import '../constants/i18next.ts'
+import '../constants/i18next'
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import React from 'react';

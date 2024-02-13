@@ -130,3 +130,4 @@ dist
 .pnp.*
 
 client/README.md
+adminFirebase.json
