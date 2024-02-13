@@ -1,12 +1,15 @@
 import express, { Request, Response } from 'express';
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { FIREBASE_AUTH, FIRESTORE, FIRE_ADMIN } from '../firebase.config';
+import { FIREBASE_AUTH, FIRESTORE, FIRE_ADMIN, FIRE_STORAGE } from '../firebase.config';
+import multer, { FileFilterCallback } from 'multer'
+
+const upload = multer({ dest: 'uploads/' }); 
 
 const indexRouter = express.Router();
 const loginRouter = express.Router();
 const registrationRouter = express.Router();
 const usersRouter = express.Router();
 const testAPIRouter = express.Router();
+const profileRouter = express.Router();
 
 
 indexRouter.get('/', (req: Request, res: Response) => {
@@ -22,7 +25,100 @@ testAPIRouter.get('/', (req: Request, res: Response) => {
 });
 
 loginRouter.post('/login', async (req: Request, res: Response) => {
-    const { email, password } = req.body;
+    const { idToken } = req.body;
+  
+    try {
+      // Authenticate the user using Firebase Admin SDK
+      
+      const decodedToken = await FIREBASE_AUTH.verifyIdToken(idToken);
+      const uid = decodedToken.uid;
+      
+      const userRef = FIRESTORE.collection('users').doc(uid);
+
+      await userRef.set({ loggedIn: true }, { merge: true })
+      .then(() => {
+          console.log('Document successfully updated!');
+          console.log("Document successfully updated!")
+      })
+      .catch((error: any) => {
+          console.error('Error updating document:', error);
+          throw error;
+      })
+
+      
+      res.status(200).json({
+        status: "success",
+        message: "User status updated successfully",
+        uid: uid,
+      });
+
+    } catch (error: any) {
+      res.status(400).json({ success: false, message: error.message });
+    }
+});
+
+profileRouter.get('/user/:uid/posts', async (req: Request, res: Response) => {
+  const { uid } = req.params;
+
+  try {
+      const userRef = FIRESTORE.collection('users').doc(uid);
+      const userSnap = await userRef.get();
+
+      if (!userSnap.exists) {
+          return res.status(404).json({ success: false, message: "User not found" });
+      }
+
+      const userData = userSnap.data();
+      
+      const postsQuerySnapshot = await FIRESTORE.collection('posts')
+          .where('createdBy', '==', uid)
+          .get();
+
+      const postsData = postsQuerySnapshot.docs.map(doc => doc.data());
+
+      // Combine user data and posts data
+      const userWithPosts = {
+          ...userData,
+          posts: postsData,
+      };
+
+      res.json({ success: true, user: userWithPosts });
+  } catch (error: any) {
+      console.error('Error fetching user with posts:', error);
+      res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+profileRouter.post('/upload', upload.single('file'), async (req, res) => {
+  const { file } = req;
+  const { uid } = req.body; 
+
+  if (!file) {
+      return res.status(400).json({ success: false, message: "No file uploaded" });
+  }
+
+  try {
+      const storageRef = FIRE_STORAGE.bucket().file(`profilePictures/${uid}/${file.originalname}`);
+      await storageRef.save(file.path, {
+          metadata: { contentType: file.mimetype },
+      });
+
+      const downloadURL = await storageRef.getSignedUrl({
+          action: 'read',
+          expires: '03-09-2491'
+      });
+
+      const userRef = FIRESTORE.collection('users').doc(uid);
+      await userRef.update({ profilePicture: downloadURL[0] });
+
+      res.json({ success: true, message: "File uploaded successfully", downloadURL: downloadURL[0] });
+  } catch (error: any) {
+      console.error('Error uploading file:', error);
+      res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+profileRouter.post('/loggout', async (req: Request, res: Response) => {
     const { idToken } = req.body;
   
     try {
@@ -58,6 +154,42 @@ loginRouter.post('/login', async (req: Request, res: Response) => {
     } catch (error: any) {
       res.status(400).json({ success: false, message: error.message });
     }
+});
+
+profileRouter.post('/profile/editPorfile', async (req: Request, res: Response) => {
+  const { id, email, username, password } = req.body;
+
+  try {    
+    const decodedToken = await FIREBASE_AUTH.verifyIdToken(id);
+    const uid = decodedToken.uid;
+
+    const updatedData  = {
+      emai: email, 
+      password: password, 
+      username: username,
+    }
+
+    const userRef = FIRESTORE.collection('users').doc(uid);
+
+    await userRef.set(updatedData)
+    .then(() => {
+        console.log('Profile successfully updated!');
+        console.log("Profile successfully updated!")
+    })
+    .catch((error: any) => {
+        console.error('Error updating Profile:', error);
+        throw error;
+    })
+
+    res.status(200).json({
+      status: "success",
+      message: "User status updated successfully",
+      uid: uid,
+    });
+
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
 });
 
 registrationRouter.post('/registration', async (req, res) => {

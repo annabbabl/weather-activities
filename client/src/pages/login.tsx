@@ -53,6 +53,7 @@ export function Login({ setError, setMessage, message, error }: DefautlProps) {
         } else {
           throw new Error(data.message || 'Login failed');
         }
+        navigate('/profile');
       } catch (error) {
         console.error(error);
         setMessage?.(t('loginError'));

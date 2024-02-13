@@ -19,7 +19,7 @@ interface UpperBarProps {
 
 
 const UpperBar: React.FC<UpperBarProps> = ({ username }) => {
-  
+
   const [value, setValue] = useState('activities');
   const [, setPath] = useState('/');
   const [edit, setEdit] = useState(false);
@@ -68,7 +68,7 @@ const UpperBar: React.FC<UpperBarProps> = ({ username }) => {
               <Route path="/registration" element={<RegistrationForm setMessage={setMessage} setError={setError} message={message} error={error}/>} />
               <Route path="/login" element={<Login setMessage={setMessage} setError={setError} message={message} error={error}/>} />
               <Route path="/" element={<div>home</div>} />
-              <Route path="/profile" element={<ProfilePage setEdit={setEdit} edit={edit} setMessage={setMessage} setError={setError} message={message} error={error}/>} />
+              <Route path='/profile' element={<ProfilePage setEdit={setEdit} edit={edit} setMessage={setMessage} setError={setError} message={message} error={error}/>} />
               {/* Define more routes as needed */}
             </Routes>
         </TabPanel>

@@ -2,13 +2,10 @@ import Box from '@mui/material/Box';
 import { Button, Typography } from "@material-tailwind/react";
 import Avatar from '@mui/material/Avatar';
 import { useTranslation } from 'react-i18next';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import { FIREBASE_AUTH, FIRESTORE, FIRE_STORAGE } from '../../api/firebase/firebase.config';
-import { PostEdit, UserEdit } from '../../types/databaseTypes';
-import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
-import { collection, doc, getDoc, getDocs, onSnapshot, query, updateDoc, where } from "firebase/firestore";
 import { ReactSVG } from 'react-svg';
+import { getAuth, signOut } from "firebase/auth";
 import { StandartBlueWave } from '../shared/waves';
 import { AuthProps } from '../../types/component.props';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
@@ -16,6 +13,7 @@ import { Button as FileUpload, styled } from '@mui/material';
 import { SetAlert } from '../../constants/popUps';
 import { EditProfile } from './editProfile';
 import Loading from '../shared/loadingScreen';
+import { PostEdit, UserEdit } from '../../types/databaseTypes';
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -32,11 +30,9 @@ const VisuallyHiddenInput = styled('input')({
 
 export default function ProfilePage({ edit, setError, setMessage, message, setEdit, error }: AuthProps) {
   const { t } = useTranslation();
-  const currentUser = FIREBASE_AUTH.currentUser
-  const usersCollection = collection(FIRESTORE, 'users');
+  const auth = getAuth();
+  const currentUser = auth.currentUser
   const navigate = useNavigate(); 
-
-  const postsCollection = collection(FIRESTORE, 'posts');
 
   const [email, setEmail] = useState(currentUser?.email)
   const [password, setPassword] = useState("");
@@ -46,88 +42,59 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
   const [imgUrl, setImgUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function getUserWithPosts(userId: string | undefined): Promise<void> {
+  const getUserWithPosts = useCallback(async () => {
+    if (!currentUser?.uid) return; 
+
     try {
       setLoading(true);
+      const response = await fetch(`http://localhost:3001/user/${currentUser.uid}/posts`);
+      if (!response.ok) throw new Error('Failed to fetch user data and posts');
 
-      // Fetch user data
-      const userDocRef = doc(usersCollection, currentUser?.uid);
-
-      const userDocSnap = await getDoc(userDocRef);
-      const userData = userDocSnap.data() as UserEdit;
-
-      // Fetch posts created by the user
-      const postsQuery = query(postsCollection, where('createdBy', '==', userId));
-      const postsQuerySnapshot = await getDocs(postsQuery);
-
-      // Map posts data
-      const postsData: PostEdit[] = [];
-      postsQuerySnapshot.forEach((doc) => {
-        const postData = doc.data() as PostEdit;
-        postsData.push(postData);
-      });
-
-      // Combine user data and posts data
-      const userWithPosts: UserEdit = {
-        ...userData,
-        posts: postsData,
-      };
-
-      // Update userData state
-      setUserData(userWithPosts);
+      const { user } = await response.json();
+      setUserData(user);
     } catch (error) {
       console.error('Error fetching user with posts:', error);
+      setError?.(true);
+      setMessage?.('Error fetching user data');
     } finally {
       setLoading(false);
     }
-  }
+  }, [currentUser?.uid, setError, setMessage]); // Dependencies
 
   useEffect(() => {
-    if (currentUser?.uid) {
-      const unsubscribe = onSnapshot(query(postsCollection, where('createdBy', '==', currentUser?.uid)), (_snapshot) => {
-        getUserWithPosts(currentUser?.uid);
-      });
+    getUserWithPosts();
+  }, [getUserWithPosts]); // Now depends on the memoized function
 
-      return () => unsubscribe();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.uid]);
-
-  useEffect(() => {
-    if (currentUser?.uid) {
-      getUserWithPosts(currentUser?.uid);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.uid]);
 
   useEffect(() => {
     setImgUrl(userData?.profilePicture ? userData.profilePicture : "");
   }, [userData]);
 
+
   const handleLogout = async () => {
     try {
       setLoading(true);
-      const response = await FIREBASE_AUTH.signOut()
-
-      const loggedOutUserData: UserEdit = {
-        loggedIn: false
-      }
-      const userDocRef = doc(usersCollection, currentUser?.uid);
-
-      updateDoc(userDocRef, loggedOutUserData)
-        .then(() => {
-          console.log('Document successfully updated!');
-          console.log(response)
-          console.log(t('logoutSuccess'))
-        })
-        .catch((error: any) => {
-          console.error('Error updating document:', error);
-          console.log(t('logoutError'))
-          setMessage?.(t('logoutError')); 
-          setError?.(true); 
-          throw error;
+      const idToken = await currentUser?.getIdToken(); 
+      const response = await fetch('http://localhost:3001/loggout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idToken }),
       });
-      navigate('/');
+
+      const data = await response.json();
+     
+      if (response.ok) {
+        console.log(data);
+        await signOut(auth);
+        navigate('/profile');
+        setMessage?.(t('signUpSuccessfull'));
+        setError?.(false);
+      } else {
+        throw new Error(data.message || 'Login failed');
+      }
+      
     } catch (error: any) {
       console.log(error, error)
       console.log(t('logoutError'))
@@ -139,55 +106,37 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
     }
   }
 
-  const handlePictureUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = (e.target as HTMLInputElement).files?.[0];
-    
+  const handlePictureUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
-    setLoading(true);
+    try {
+        setLoading(true);
 
-    const storageRef = ref(FIRE_STORAGE, `p/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('uid', currentUser?.uid || '');
 
-    uploadTask.on("state_changed",
-      () => {
-      },
-      (error) => {
-        alert(error);
-        setMessage?.(t('uploadError'))
-        setError?.(true)
-        setLoading(false); 
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setImgUrl(downloadURL)
-          console.log(imgUrl,898)
-          console.log(downloadURL,898)
-
-          const profilePictureData : UserEdit = {
-            profilePicture: downloadURL
-          }
-
-          const userDocRef = doc(collection(FIRESTORE, 'users'), FIREBASE_AUTH.currentUser?.uid);
-
-          updateDoc(userDocRef, profilePictureData)
-            .then(() => {
-                console.log('Document successfully updated!');
-                console.log('Document successfully updated!')
-            })
-            .catch((error: any) => {
-                console.error('Error updating document:', error);
-                console.log(t('uploadError'))
-                setMessage?.(t('uploadError'))
-                setError?.(true)
-                throw error;
-          })
-          setMessage?.(t('uploadedSuccessfully'))
-          setLoading(false); 
+        const response = await fetch('http://localhost:3001/upload', {
+            method: 'POST',
+            body: formData, // Send formData
         });
-      }
-    );
-  }
+
+        if (!response.ok) throw new Error('File upload failed');
+
+        const { downloadURL } = await response.json();
+        setImgUrl(downloadURL);
+        setMessage?.('File uploaded successfully');
+        setError?.(false);
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        setMessage?.('Error uploading file');
+        setError?.(true);
+    } finally {
+        setLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col justify-between items-center h-screen ">
       {!loading ? (
@@ -253,7 +202,9 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
                 setEmail={setEmail}
                 setPassword={setPassword}
                 setUsername={setUsername}
-                setEdit={setEdit} />
+                setEdit={setEdit} 
+                imgUrl={imgUrl}
+              />
             )}
           </Box>
         </div><SetAlert error={error} message={(message ? message : "")} /><ReactSVG src="../../assets/Sun.svg" /><div className="flex justify-end w-screen h-80">
