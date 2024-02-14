@@ -10,6 +10,7 @@ interface ErrorAlertProps {
   message: string | null;
   error?: boolean;
   info?: boolean;
+  children?: React.ReactNode
 }
 
 const SetAlert: React.FC<ErrorAlertProps> = ({ message, error, info = false }) => {
@@ -47,7 +48,7 @@ const handlePopoverClose = (setAnchorEl: any) => {
     setAnchorEl(null);
 };
 
-const MouseOverPopover: React.FC<ErrorAlertProps> = ({ message }) => {
+const MouseOverPopover: React.FC<ErrorAlertProps> = ({ message, children }) => {
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
   
     const open = Boolean(anchorEl);
@@ -71,7 +72,8 @@ const MouseOverPopover: React.FC<ErrorAlertProps> = ({ message }) => {
           }}
           onClose={() =>handlePopoverClose(setAnchorEl)}
           disableRestoreFocus
-        >
+        > 
+          {children}
           <Typography sx={{ p: 1 }}>{message}</Typography>
         </Popover>
       </>

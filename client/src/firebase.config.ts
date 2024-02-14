@@ -4,13 +4,14 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from 'firebase/storage';
 
+
 const firebaseConfig = {
-  apiKey: "AIzaSyApdmGFx3XrJdY9r9bLyMXtAQmzGVGoPvg",
-  authDomain:  "weatherapp-1243f.firebaseapp.com",
-  projectId:  "weatherapp-1243f",
-  storageBucket:  "weatherapp-1243f.appspot.com",
-  messagingSenderId:  "673457310800",
-  appId:  "1:673457310800:web:c9a5fe1ec0a206ec61d555",
+  apiKey: "AIzaSyApdmGFx3XrJdY9r9bLyMXtAQmzGVGoPvg" ,
+  authDomain: "weatherapp-1243f.firebaseapp.com",
+  projectId: "weatherapp-1243f",
+  storageBucket: "weatherapp-1243f.appspot.com",
+  messagingSenderId: "673457310800",
+  appId: "1:673457310800:web:c9a5fe1ec0a206ec61d555",
   measurementId:  "G-HSLWL2VHF0"
 };
 

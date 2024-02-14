@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import {
     Card,
     Input,
@@ -6,21 +5,20 @@ import {
     Typography,
   } from "@material-tailwind/react";
 import React, { useState } from "react";
-import '../constants/i18next.ts'
+import '../constants/i18next'
 import { useTranslation } from "react-i18next";
-import { StandartBlueWave } from "./shared/waves.tsx";
+import { StandartBlueWave } from "../components/shared/waves";
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom'; 
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { FIREBASE_AUTH, FIRESTORE } from "../api/firebase/firebase.config.ts";
-import {SetAlert} from "../constants/popUps.tsx";
-import { UserEdit } from "../types/databaseTypes";
-import { collection, doc, updateDoc } from "firebase/firestore";
+import {SetAlert} from "../constants/popUps";
 import { DefautlProps } from "../types/component.props";
-import Loading from "./shared/loadingScreen.tsx";
+import Loading from "../components/shared/loadingScreen";
+import { FIREBASE_AUTH } from "../firebase.config";
+import { signInWithEmailAndPassword } from "firebase/auth";
    
 export function Login({ setError, setMessage, message, error }: DefautlProps) {
     const { t } = useTranslation();
+
     const navigate = useNavigate(); 
 
     const [loading, setLoading] = useState(false);
@@ -30,47 +28,40 @@ export function Login({ setError, setMessage, message, error }: DefautlProps) {
 
 
     const handleLogin = async () => {
-      try{
-        setLoading(true)
-        const response = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password)
-        console.log(response)
-        console.log(t('signUpSuccessfull'))
-        navigate('/profile');
-        setMessage?.(t('signUpSuccessfull'));
-        setError?.(true);
-
-        const loggedInData : UserEdit = {
-          loggedIn: false
-        }
-        const usersCollection = collection(FIRESTORE, 'users');
-        const userDocRef = doc(usersCollection, FIREBASE_AUTH.currentUser?.uid);
-
-        updateDoc(userDocRef, loggedInData)
-        .then(() => {
-            console.log('Document successfully updated!');
-            console.log("Document successfully updated!")
-        })
-        .catch((error: any) => {
-            console.error('Error updating document:', error);
-            console.log(t('signUpFail'))
-            setMessage?.(t('signOutFail'))
-            setError?.(true)
-            throw error;
-        }).finally(() => {
-            setLoading(false); 
+      setLoading(true);
+    
+      try {
+        const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
+        const idToken = await userCredential.user.getIdToken(); 
+    
+        const response = await fetch('http://localhost:3001/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ idToken }),
         });
-        setMessage?.(t('logoutError'))
-      }catch(error: any){
-        console.log(error, error)
-        console.log(t('logoutError'))
-        setError?.(true);
-        setMessage?.(t('logoutError'));
-        throw error
-      }finally{
-        setLoading(false)
+    
+        const data = await response.json();
+        
+        if (response.ok) {
+          console.log(data);
+          navigate('/profile');
+          setMessage?.(t('signUpSuccessfull'));
+          setError?.(false);
+        } else {
+          throw new Error(data.message || 'Login failed');
+        }
+        setMessage?.("")
+        setError?.(false)
+        navigate('/profile');
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
       }
     };
-
+    
     return (
       <div className="flex flex-col justify-between items-center h-screen">
          {!loading ? (
