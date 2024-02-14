@@ -1,19 +1,24 @@
 import React, { Component } from 'react';
 import './App.css';
-import UpperBar from './pages/navigation/upperBar';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import UpperBar from './components/navigation/upperBar';
+import { User } from 'firebase/auth';
+
 
 interface AppState {
   apiResponse: string;
   username: string, 
+  currentUser: User | undefined
 }
 
 class App extends Component<{}, AppState> {
+  
   constructor(props: {}) {
     super(props);
     this.state = { 
       apiResponse: "",
-      username: ""
+      username: "", 
+      currentUser: undefined
     };
   }
 
@@ -31,11 +36,10 @@ class App extends Component<{}, AppState> {
     return (
       <div className="App">
         <Router>
-          <UpperBar username={this.state.username}/>
+          <UpperBar currentUser={this.state.currentUser}/>
           <div className="App-content">
             <header>{/* Your header content */}</header>
             <main>
-              <p className="App-intro">{this.state.apiResponse}</p>
               <Routes>
                 <Route path="/saved" element={<div>home</div>} />
               </Routes>

@@ -6,19 +6,21 @@ import { useTranslation } from 'react-i18next';
 import { Routes, Route } from 'react-router-dom';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import { RegistrationForm } from '../registration';
-import { Login } from '../login';
-import ProfilePage from '../profile/profilePage';
-import ActivitiesScreen from '../activities';
+import { RegistrationForm } from '../../pages/registration';
+import { Login } from '../../pages/login';
+import ProfilePage from '../../pages/profile/profilePage';
+import ActivitiesScreen from '../../pages/activities';
 import { GOOD_WEATHER_COLORS } from '../../constants/theme';
+import { User } from 'firebase/auth';
+import AboutPage from '../../pages/aboutPage';
 
 
 interface UpperBarProps {
-  username: string;
+  currentUser: User | undefined;
 }
 
 
-const UpperBar: React.FC<UpperBarProps> = ({ username }) => {
+const UpperBar: React.FC<UpperBarProps> = ({ currentUser }) => {
 
   const [value, setValue] = useState('activities');
   const [, setPath] = useState('/');
@@ -56,21 +58,24 @@ const UpperBar: React.FC<UpperBarProps> = ({ username }) => {
           <TabList onChange={handleChange} aria-label={t('upperBar')} textColor="primary" centered>
             <Tab label={t('activities')} value="activities" />
             <Tab label={t('saved')} value="saved" />
-            <Tab label={t('profile')} value={ username ? "profile" : "registration"}/>
+            <Tab label={t('profile')} value={ currentUser ? "profile" : "registration"}/>
+            <Tab label={t('about')} value={"aboutPage"}/>
           </TabList>
         </Box>
         <TabPanel value="activities">
           <ActivitiesScreen />
         </TabPanel>
         <TabPanel value="saved">{t('saved')}</TabPanel>
-        <TabPanel value={ username ? "profile" : "registration"}>
+        <TabPanel value={ currentUser ? "profile" : "registration"}>
             <Routes>
               <Route path="/registration" element={<RegistrationForm setMessage={setMessage} setError={setError} message={message} error={error}/>} />
               <Route path="/login" element={<Login setMessage={setMessage} setError={setError} message={message} error={error}/>} />
-              <Route path="/" element={<div>home</div>} />
-              <Route path='/profile' element={<ProfilePage setEdit={setEdit} edit={edit} setMessage={setMessage} setError={setError} message={message} error={error}/>} />
+              <Route path='/profile' element={<ProfilePage setEdit={setEdit} setPath={setPath} edit={edit} setMessage={setMessage} setError={setError} message={message} error={error}/>} />
               {/* Define more routes as needed */}
             </Routes>
+        </TabPanel>
+        <TabPanel value="aboutPage">
+          <AboutPage/>
         </TabPanel>
       </TabContext>
     </Box>

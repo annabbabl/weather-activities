@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
-import { FIREBASE_AUTH, FIRESTORE, FIRE_ADMIN, FIRE_STORAGE } from '../firebase.config';
-import multer, { FileFilterCallback } from 'multer'
+import multer, {  } from 'multer'
+import { FIREBASE_AUTH, FIRESTORE, FIRE_ADMIN, FIRE_STORAGE } from './firebase.config';
 
 const upload = multer({ dest: 'uploads/' }); 
 
@@ -13,23 +13,24 @@ const profileRouter = express.Router();
 
 
 indexRouter.get('/', (req: Request, res: Response) => {
-  res.send('Index Page');
+  const f = FIRESTORE.collection("users").doc("6bFkEUnROsrFQHh4RIaI")
+  console.log(f.id)
+  console.log(f.get())
+  res.send(f.get());
 });
 
 usersRouter.get('/', (req: Request, res: Response) => {
-  res.send('Users List');
+  res.send( {message: 'Test API Response'} );
 });
 
 testAPIRouter.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Test API Response' });
 });
 
-loginRouter.post('/login', async (req: Request, res: Response) => {
+indexRouter.post('/login', async (req: Request, res: Response) => {
     const { idToken } = req.body;
   
-    try {
-      // Authenticate the user using Firebase Admin SDK
-      
+    try {      
       const decodedToken = await FIREBASE_AUTH.verifyIdToken(idToken);
       const uid = decodedToken.uid;
       
@@ -38,14 +39,12 @@ loginRouter.post('/login', async (req: Request, res: Response) => {
       await userRef.set({ loggedIn: true }, { merge: true })
       .then(() => {
           console.log('Document successfully updated!');
-          console.log("Document successfully updated!")
       })
       .catch((error: any) => {
           console.error('Error updating document:', error);
           throw error;
       })
 
-      
       res.status(200).json({
         status: "success",
         message: "User status updated successfully",
@@ -57,7 +56,8 @@ loginRouter.post('/login', async (req: Request, res: Response) => {
     }
 });
 
-profileRouter.get('/user/:uid/posts', async (req: Request, res: Response) => {
+
+profileRouter.get('/:uid/posts', async (req: Request, res: Response) => {
   const { uid } = req.params;
 
   try {
@@ -89,79 +89,45 @@ profileRouter.get('/user/:uid/posts', async (req: Request, res: Response) => {
   }
 });
 
-profileRouter.post('/upload', upload.single('file'), async (req, res) => {
-  const { file } = req;
-  const { uid } = req.body; 
+profileRouter.post('/uploadPicture', upload.single('file'), async (req: Request, res: Response) => {
+  const { file, body: { uid } } = req;
 
   if (!file) {
-      return res.status(400).json({ success: false, message: "No file uploaded" });
+    return res.status(400).json({ success: false, message: "No file uploaded" });
   }
 
   try {
-      const storageRef = FIRE_STORAGE.bucket().file(`profilePictures/${uid}/${file.originalname}`);
-      await storageRef.save(file.path, {
-          metadata: { contentType: file.mimetype },
-      });
+    const bucket = FIRE_STORAGE.bucket(); 
+    const storageRef = bucket.file(file.originalname); 
 
-      const downloadURL = await storageRef.getSignedUrl({
-          action: 'read',
-          expires: '03-09-2491'
-      });
+    await storageRef.save(file.buffer, {
+      contentType: file.mimetype,
+    });
 
-      const userRef = FIRESTORE.collection('users').doc(uid);
-      await userRef.update({ profilePicture: downloadURL[0] });
+    const downloadURL = await storageRef.getSignedUrl({
+      action: 'read',
+      expires: '03-09-2491'
+    });
 
-      res.json({ success: true, message: "File uploaded successfully", downloadURL: downloadURL[0] });
+    const userRef = FIRESTORE.collection('users').doc(uid);
+    await userRef.update({ profilePicture: downloadURL[0] });
+
+    await FIREBASE_AUTH.updateUser(uid, { photoURL: downloadURL[0] });
+
+    res.json({ success: true, message: "File uploaded successfully", downloadURL: downloadURL[0] });
   } catch (error: any) {
-      console.error('Error uploading file:', error);
-      res.status(500).json({ success: false, message: error.message });
+    console.error('Error uploading file:', error);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
-profileRouter.post('/loggout', async (req: Request, res: Response) => {
-    const { idToken } = req.body;
-  
-    try {
-      // Authenticate the user using Firebase Admin SDK
-      
-      const decodedToken = await FIREBASE_AUTH.verifyIdToken(idToken);
-      const uid = decodedToken.uid;
 
-      
-      const loggedInData  = {
-        loggedIn: false 
-      }
 
-      const userRef = FIRESTORE.collection('users').doc(uid);
-
-      await userRef.set({ loggedIn: true }, { merge: true })
-      .then(() => {
-          console.log('Document successfully updated!');
-          console.log("Document successfully updated!")
-      })
-      .catch((error: any) => {
-          console.error('Error updating document:', error);
-          throw error;
-      })
-
-      
-      res.status(200).json({
-        status: "success",
-        message: "User status updated successfully",
-        uid: uid,
-      });
-
-    } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
-    }
-});
-
-profileRouter.post('/profile/editPorfile', async (req: Request, res: Response) => {
+profileRouter.post('/editProfile', async (req: Request, res: Response) => {
   const { id, email, username, password } = req.body;
+  console.log(id, email, username, password);
 
   try {    
-    const decodedToken = await FIREBASE_AUTH.verifyIdToken(id);
-    const uid = decodedToken.uid;
 
     const updatedData  = {
       emai: email, 
@@ -169,30 +135,62 @@ profileRouter.post('/profile/editPorfile', async (req: Request, res: Response) =
       username: username,
     }
 
-    const userRef = FIRESTORE.collection('users').doc(uid);
+    const userRef = FIRESTORE.collection('users').doc(id);
 
     await userRef.set(updatedData)
     .then(() => {
         console.log('Profile successfully updated!');
-        console.log("Profile successfully updated!")
+        FIREBASE_AUTH.updateUser(id, {displayName: username, email: email, password: password})
+
+        res.status(200).json({
+          status: "success",
+          message: "User status updated successfully",
+          uid: id,
+          username: username, 
+          password: password,
+          email: email
+        });
     })
     .catch((error: any) => {
         console.error('Error updating Profile:', error);
         throw error;
     })
 
-    res.status(200).json({
-      status: "success",
-      message: "User status updated successfully",
-      uid: uid,
-    });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+profileRouter.post('/loggout', async (req: Request, res: Response) => {
+  const { idToken } = req.body;
+  console.log(idToken);
+
+  try {    
+   
+    const decodedToken = await FIREBASE_AUTH.verifyIdToken(idToken);
+    const uid = decodedToken.uid;
+    
+    const userRef = FIRESTORE.collection('users').doc(uid);
+
+    await userRef.set({ loggedIn: false })
+    .then(() => {
+        console.log('Profile successfully updated!');
+        res.status(200).json({
+          status: "success",
+          message: "User status updated successfully",
+          uid: uid,
+        });
+    })
+    .catch((error: any) => {
+        console.error('Error updating Profile:', error);
+        throw error;
+    })
 
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
   }
 });
 
-registrationRouter.post('/registration', async (req, res) => {
+registrationRouter.post('/', async (req, res) => {
     const { email, password, username } = req.body;
 
     try {
@@ -225,5 +223,6 @@ export {
   usersRouter, 
   testAPIRouter, 
   registrationRouter,
-  loginRouter
+  loginRouter, 
+  profileRouter
 };

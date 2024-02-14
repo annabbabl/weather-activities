@@ -7,18 +7,17 @@ import {
 import React, { useState } from "react";
 import '../constants/i18next'
 import { useTranslation } from "react-i18next";
-import { StandartBlueWave } from "./shared/waves";
+import { StandartBlueWave } from "../components/shared/waves";
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom'; 
 import {SetAlert} from "../constants/popUps";
 import { DefautlProps } from "../types/component.props";
-import Loading from "./shared/loadingScreen";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-
+import Loading from "../components/shared/loadingScreen";
+import { FIREBASE_AUTH } from "../firebase.config";
+import { signInWithEmailAndPassword } from "firebase/auth";
    
 export function Login({ setError, setMessage, message, error }: DefautlProps) {
     const { t } = useTranslation();
-    const auth = getAuth();
 
     const navigate = useNavigate(); 
 
@@ -32,7 +31,7 @@ export function Login({ setError, setMessage, message, error }: DefautlProps) {
       setLoading(true);
     
       try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
         const idToken = await userCredential.user.getIdToken(); 
     
         const response = await fetch('http://localhost:3001/login', {
@@ -53,11 +52,11 @@ export function Login({ setError, setMessage, message, error }: DefautlProps) {
         } else {
           throw new Error(data.message || 'Login failed');
         }
+        setMessage?.("")
+        setError?.(false)
         navigate('/profile');
       } catch (error) {
         console.error(error);
-        setMessage?.(t('loginError'));
-        setError?.(true);
       } finally {
         setLoading(false);
       }

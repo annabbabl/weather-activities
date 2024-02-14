@@ -20,26 +20,26 @@ export default function ActivitiesScreen() {
             <TabContext value={day}>
                 <div className="border-b-2 w-5/6 bg-yellow-400 rounded-md text-blue-700 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] ">
                     <TabList onChange={handleChange} aria-label={t('upperBar')} textColor="inherit" centered >
-                        <div className={`border-r-2 border-yellow-500 hover:bg-blue-700 hover:text-white hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] ${day === 'monday' ? 'bg-blue-700 text-white vigorous ' : ''}`} onClick={() => setDay('monday')}>
-                            <Tab label={t('monday')} value={'monday'} />
+                        <div className={`border-r-2 border-yellow-500 hover:bg-blue-700 hover:text-white hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] ${day === 'monday' ? 'bg-blue-700 text-white vigorous ' : ''}`} onClick={() => setDay('Monday')}>
+                            <Tab label={t('monday')} value={'Monday'} />
                         </div>
-                        <div className={`border-r-2 border-yellow-500 hover:bg-blue-700 hover:text-white hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] ${day === 'tuesday' ? 'bg-blue-700 text-white vigorous' : ''}`} onClick={() => setDay('tuesday')}>
-                            <Tab label={t('tuesday')} value={'tuesday'} />
+                        <div className={`border-r-2 border-yellow-500 hover:bg-blue-700 hover:text-white hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] ${day === 'tuesday' ? 'bg-blue-700 text-white vigorous' : ''}`} onClick={() => setDay('Tuesday')}>
+                            <Tab label={t('tuesday')} value={'Tuesday'} />
                         </div>
-                        <div className={`border-r-2 border-yellow-500 hover:bg-blue-700 hover:text-white hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] ${day === 'wensday' ? 'bg-blue-700 text-white vigorous' : ''}`} onClick={() => setDay('wensday')}>
-                            <Tab label={t('wensday')} value={'wensday'} />
+                        <div className={`border-r-2 border-yellow-500 hover:bg-blue-700 hover:text-white hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] ${day === 'wensday' ? 'bg-blue-700 text-white vigorous' : ''}`} onClick={() => setDay('Wensday')}>
+                            <Tab label={t('wensday')} value={'Wensday'} />
                         </div>
-                        <div className={`border-r-2 border-yellow-500 hover:bg-blue-700 hover:text-white hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] ${day === 'thursday' ? 'bg-blue-700 text-white' : ''}`} onClick={() => setDay('thursday')}>
-                            <Tab label={t('thursday')} value={'thursday'} />
+                        <div className={`border-r-2 border-yellow-500 hover:bg-blue-700 hover:text-white hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] ${day === 'thursday' ? 'bg-blue-700 text-white' : ''}`} onClick={() => setDay('Thursday')}>
+                            <Tab label={t('thursday')} value={'Thursday'} />
                         </div>
-                        <div className={`border-r-2 border-yellow-500 hover:bg-blue-700 hover:text-white hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] ${day === 'friday' ? 'bg-blue-700 text-white' : ''}`} onClick={() => setDay('friday')}>
-                            <Tab label={t('friday')} value={'friday'} />
+                        <div className={`border-r-2 border-yellow-500 hover:bg-blue-700 hover:text-white hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] ${day === 'friday' ? 'bg-blue-700 text-white' : ''}`} onClick={() => setDay('Friday')}>
+                            <Tab label={t('friday')} value={'Friday'} />
                         </div>
-                        <div className={`border-r-2 border-yellow-500 hover:bg-blue-700 hover:text-white hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] ${day === 'saturday' ? 'bg-blue-700 text-white' : ''}`} onClick={() => setDay('saturday')}>
-                            <Tab label={t('saturday')} value={'saturday'} />
+                        <div className={`border-r-2 border-yellow-500 hover:bg-blue-700 hover:text-white hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] ${day === 'saturday' ? 'bg-blue-700 text-white' : ''}`} onClick={() => setDay('Saturday')}>
+                            <Tab label={t('saturday')} value={'Saturday'} />
                         </div>
-                        <div className={`hover:bg-blue-700 hover:text-white ${day === 'sunday' ? 'bg-blue-700 text-white' : ''}`} onClick={() => setDay('sunday')}>
-                            <Tab label={t('sunday')} value={'sunday'} />
+                        <div className={`hover:bg-blue-700 hover:text-white ${day === 'sunday' ? 'bg-blue-700 text-white' : ''}`} onClick={() => setDay('Sunday')}>
+                            <Tab label={t('sunday')} value={'Sunday'} />
                         </div>
                     </TabList>
                 </div>

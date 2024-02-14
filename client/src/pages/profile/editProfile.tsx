@@ -9,22 +9,22 @@ import { useState } from "react";
 import '../../constants/i18next'
 import { useTranslation } from "react-i18next";
 import { AuthProps } from "../../types/component.props";
-import { getAuth, updateEmail } from "firebase/auth";
+import { updateEmail } from "firebase/auth";
 import { updatePassword, updateProfile } from "firebase/auth";
 import {SetAlert} from "../../constants/popUps";
-import Loading from "../shared/loadingScreen";
+import Loading from "../../components/shared/loadingScreen";
 import { UserEdit } from "../../types/databaseTypes";
+import {FIREBASE_AUTH} from "../../firebase.config"
 
 
-export function EditProfile({username, password, email, imgUrl, setEmail, setPassword, setUsername, setEdit}: AuthProps) {
+export function EditProfile({username, password, email, imgUrl, setEmail, setPassword, setUsername, setEdit, setMessage, setError }: AuthProps) {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
-    const currentUser = getAuth().currentUser; 
+    const currentUser = FIREBASE_AUTH.currentUser; 
 
-    const [message, setMessage] = useState(""); 
-    const [error, setError] = useState(false); 
+    const [message ] = useState(""); 
+    const [error] = useState(false); 
 
-    const localUsername = username ? username : ""
     const localemail = email ? email : ""
     const localpassword = password ? password : ""
 
@@ -32,41 +32,40 @@ export function EditProfile({username, password, email, imgUrl, setEmail, setPas
       try{
         setLoading(true); 
 
-        const idToken = await currentUser?.getIdToken(); 
-
         const updatedUserData : UserEdit = {
-          id: idToken,
-          email: email,
-          username: localUsername,
-          password: localpassword
+          id: currentUser?.uid,
+          email: email, 
+          password: password, 
+          username: username,
         }
 
-        const response = await fetch(`http://localhost:3001/profile/editPorfile`, {
+        const response = await fetch(`http://localhost:3001/profile/editProfile`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({updatedUserData}),
+          body: JSON.stringify(updatedUserData),
         });
 
         const data = await response.json();
+        console.log(data, 17177)
+        console.log( response, 17177)
         if (response.ok) {
           console.log(data);
           setMessage?.(t('userSettingsUpdateError'));
           setError?.(false);
           if(currentUser){
-           
             updateProfile(currentUser, {displayName:  username, photoURL: imgUrl})
             await updatePassword(currentUser, localpassword);
             await updateEmail(currentUser, localemail);
           }
+          setEdit?.(false)
         } else {
           throw new Error(data.message || 'Login failed');
         }
       } catch (error: any) {
         console.log(error, error)
-        console.log(t('logoutError'))
-        setMessage?.(t('logoutError')); 
+        setMessage?.(t('error')); 
         setError?.(true); 
         throw error;
       } finally {

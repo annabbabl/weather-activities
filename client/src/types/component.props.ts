@@ -20,6 +20,7 @@ interface AuthProps extends DefautlProps {
     setEmail?: React.Dispatch<React.SetStateAction<string | null | undefined>>;
     setPassword?: React.Dispatch<React.SetStateAction<string>>;
     setUsername?: React.Dispatch<React.SetStateAction<string | null | undefined>>;
+    setPath?: React.Dispatch<React.SetStateAction<string>>;
    
 }
 

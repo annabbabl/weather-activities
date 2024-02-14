@@ -5,15 +5,16 @@ import { useTranslation } from 'react-i18next';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { ReactSVG } from 'react-svg';
-import { getAuth, signOut } from "firebase/auth";
-import { StandartBlueWave } from '../shared/waves';
+import { signOut, updateProfile } from "firebase/auth";
+import { StandartBlueWave } from '../../components/shared/waves';
 import { AuthProps } from '../../types/component.props';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { Button as FileUpload, styled } from '@mui/material';
 import { SetAlert } from '../../constants/popUps';
 import { EditProfile } from './editProfile';
-import Loading from '../shared/loadingScreen';
+import Loading from '../../components/shared/loadingScreen';
 import { PostEdit, UserEdit } from '../../types/databaseTypes';
+import {FIREBASE_AUTH} from "../../firebase.config"
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -28,10 +29,9 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-export default function ProfilePage({ edit, setError, setMessage, message, setEdit, error }: AuthProps) {
+export default function ProfilePage({ edit, setError, setMessage, message, setEdit, error, setPath }: AuthProps) {
   const { t } = useTranslation();
-  const auth = getAuth();
-  const currentUser = auth.currentUser
+  const currentUser = FIREBASE_AUTH.currentUser
   const navigate = useNavigate(); 
 
   const [email, setEmail] = useState(currentUser?.email)
@@ -47,7 +47,7 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
 
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3001/user/${currentUser.uid}/posts`);
+      const response = await fetch(`http://localhost:3001/profile/${currentUser.uid}/posts`);
       if (!response.ok) throw new Error('Failed to fetch user data and posts');
 
       const { user } = await response.json();
@@ -72,62 +72,71 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
 
 
   const handleLogout = async () => {
-    try {
-      setLoading(true);
-      const idToken = await currentUser?.getIdToken(); 
-      const response = await fetch('http://localhost:3001/loggout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ idToken }),
-      });
-
-      const data = await response.json();
-     
-      if (response.ok) {
-        console.log(data);
-        await signOut(auth);
-        navigate('/profile');
-        setMessage?.(t('signUpSuccessfull'));
-        setError?.(false);
-      } else {
-        throw new Error(data.message || 'Login failed');
+    if(currentUser){
+      try {
+        setLoading(true);
+        const idToken = await currentUser?.getIdToken(); 
+        const response = await fetch('http://localhost:3001/profile/loggout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ idToken }),
+        });
+  
+        const data = await response.json();
+       
+        if (response.ok) {
+          console.log(data);
+          await signOut(FIREBASE_AUTH);
+          navigate('/aboutPage');
+          setMessage?.(t('signUpSuccessfull'));
+          setError?.(false);
+          setPath?.("/")
+        } 
+      } catch (error: any) {
+        console.log(error, error)
+        console.log(t('logoutError'))
+        throw error;
+      } finally {
+        setLoading(false);
       }
-      
-    } catch (error: any) {
-      console.log(error, error)
-      console.log(t('logoutError'))
-      setMessage?.(t('logoutError')); 
-      setError?.(true); 
-      throw error;
-    } finally {
-      setLoading(false);
     }
+    setMessage?.(t('notLoggedIn')); 
+    setError?.(true); 
+   
   }
 
   const handlePictureUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !currentUser) return;
 
     try {
         setLoading(true);
 
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('uid', currentUser?.uid || '');
+        formData.append('uid', currentUser.uid);
 
-        const response = await fetch('http://localhost:3001/upload', {
+        const response = await fetch('http://localhost:3001/profile/uploadPicture', {
             method: 'POST',
-            body: formData, // Send formData
+            body: formData,
         });
 
         if (!response.ok) throw new Error('File upload failed');
 
-        const { downloadURL } = await response.json();
-        setImgUrl(downloadURL);
-        setMessage?.('File uploaded successfully');
-        setError?.(false);
+        if (currentUser) {
+          updateProfile(currentUser, { photoURL: imgUrl })
+            .then(async () => {
+              const { downloadURL } = await response.json();
+              setImgUrl(downloadURL);
+              setMessage?.('File uploaded successfully');
+              setError?.(false);
+            })
+            .catch((error: any) => {
+              console.log(error)
+            });
+        }
     } catch (error) {
         console.error('Error uploading file:', error);
         setMessage?.('Error uploading file');
@@ -135,7 +144,8 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
     } finally {
         setLoading(false);
     }
-  };
+};
+
 
   return (
     <div className="flex flex-col justify-between items-center h-screen ">
@@ -160,7 +170,7 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
                   </div>
                 </div>
                 <div>
-                  <div className='shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px]  border-4 '>
+                  <div className='shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] border-4 border-blue-700'>
                     <div className='flex flex-row justify-evenly mt-5'>
                       <Typography variant="h4" placeholder={t('username')}>{t('username')}</Typography>
                       <Typography variant="lead" placeholder={t('username')}>{username}</Typography>
@@ -171,7 +181,8 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
                     </div>
                   </div>
                   <div className=''>
-                    <Button className="mt-6 text-white w-full bg-blue-700" placeholder={t('edit')} onClick={() => setEdit?.(true)} loading={loading}>
+                    <Button className="mt-6 text-white w-full bg-blue-700" placeholder={t('edit')} onClick={
+                      () => {setEdit?.(true); setMessage?.(""); setError?.(false)}} loading={loading}>
                       {t('edit')}
                     </Button>
                   </div>
@@ -180,6 +191,7 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
                       {t('signOut')}
                     </Button>
                   </div>
+                  
                   {userData?.posts && userData?.posts?.length > 0 ? (
                     <div className='my-16 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] '>
                       <Typography variant="h4" placeholder={t('yourPosts')}>{t('yourPosts')}</Typography>

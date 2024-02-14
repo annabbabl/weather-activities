@@ -2,9 +2,11 @@
   "name": "weather-activities",
   "version": "1.0.0",
   "description": "this is a website to post suggestions, what you can do on this day. This is a project for the \"Webentwicklungsmodul\"",
-  "main": ".server/index.ts",
+  "main": "server/index.ts",
   "scripts": {
-    "start": "node ./server/index.js",
+    "start-server": "ts-node ./server/index.ts",
+    "build-client": "cd client && npm install && npm run build",
+    "start": "npm run start-server && npm run build-client",
     "dev": "ts-node server/index.ts",
     "build": "tsc && cd client && npm install && npm run build",
     "heroku-postbuild": "npm run build",
@@ -43,5 +45,8 @@
   },
   "typescript": {
     "version": "^4.5.2"
-  }
+  },
+  "assets": [
+    "./assets"
+  ]
 }

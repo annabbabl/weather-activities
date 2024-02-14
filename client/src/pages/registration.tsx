@@ -7,13 +7,13 @@ import {
 import {Link} from 'react-router-dom';
 import '../constants/i18next'
 import { useTranslation } from "react-i18next";
-import { StandartBlueWave } from "./shared/waves";
+import { StandartBlueWave } from "../components/shared/waves";
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom'; 
 import { ReactSVG } from "react-svg";
 import {SetAlert} from "../constants/popUps";
 import { DefautlProps } from "../types/component.props";
-import Loading from "./shared/loadingScreen";
+import Loading from "../components/shared/loadingScreen";
 import React from "react";
 
 
@@ -33,7 +33,7 @@ export function RegistrationForm({ setError, setMessage, message, error }: Defau
         try {
             setLoading(true);
     
-            const response = await fetch('http://localhost:3001/register', {
+            const response = await fetch('http://localhost:3001/registration', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

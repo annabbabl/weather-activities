@@ -30,6 +30,7 @@ i18n
                 edit:"Edit",
                 post:"Post",
                 upload:"Upload",
+                about: "About",
 
                 //profile
                 email: "Email", 
@@ -55,6 +56,7 @@ i18n
                 logoutError:"Error while Looging out",
                 uploadError: "Error Uploading",
                 signOutFail:"Sign Out Fail",
+                notLoggedIn:"Not logged in",
                 
                 //success
                 signUpSuccessfull: "Sign Up Successfull", 
@@ -73,8 +75,11 @@ i18n
                 thursday:"Thursday", 
                 friday:"Friday",
                 saturday:"Saturday", 
-                sunday:"Sunday"
+                sunday:"Sunday",
 
+                //about Page
+                aboutMeText:"Hello, I'm Anna Stabel, the creator of Weather Activity. I'm passionate about helping people make the most of their days, rain or shine. With Weather Activity, I aim to provide a platform where users can share and discover exciting activities based on their location and the weather forecast. Join me in exploring new adventures and making every day memorable!",
+                infoText:"Welcome to Weather Activity! Discover new ways to enjoy every day with our platform. Create your profile, explore suggestions from users around the world, and share your own favorite activities. Whether it's sunny or raining, find something exciting to do that suits the weather in your area. Let's make every day an adventure together!"
             }
 
         }, 
@@ -93,6 +98,7 @@ i18n
                 edit:"Ändern",
                 post: "Post",
                 upload:"Hochladen",
+                about:"Informationen",
 
                 //profile
                 email: "Email", 
@@ -117,6 +123,7 @@ i18n
                 logoutError:"Fehler beim Ausloggen",
                 uploadError: "Fehler beim Hochladen",
                 signOutFail:"Sign Out Fail",
+                notLoggedIn:"Nicht eingelloged",
 
                 
                 //success
@@ -135,8 +142,11 @@ i18n
                 thursday:"Donnerstag", 
                 friday:"Freitag",
                 saturday:"Samstag", 
-                sunday:"Sontag"
+                sunday:"Sontag",
 
+                //about page
+                infoText:"Willkommen bei Weather Activity! Entdecke neue Möglichkeiten, jeden Tag mit unserer Plattform zu genießen. Erstelle dein Profil, erkunde Vorschläge von Benutzern aus der ganzen Welt und teile deine eigenen Lieblingsaktivitäten. Egal, ob es sonnig ist oder regnet, finde eine aufregende Aktivität, die zum Wetter in deiner Region passt. Lass uns gemeinsam jeden Tag zu einem Abenteuer machen!",
+                aboutMeText: "Hallo, ich bin Anna Stabel, die Schöpferin von Weather Activity. Ich bin leidenschaftlich daran interessiert, Menschen zu helfen, das Beste aus ihren Tagen herauszuholen, ob Regen oder Sonnenschein. Mit Weather Activity möchte ich eine Plattform bieten, auf der Benutzer aufgrund ihres Standorts und der Wettervorhersage aufregende Aktivitäten teilen und entdecken können. Begleite mich dabei, neue Abenteuer zu erkunden und jeden Tag unvergesslich zu machen!"
             }
         }
     }

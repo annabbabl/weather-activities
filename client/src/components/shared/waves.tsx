@@ -14,7 +14,18 @@ const StandartBlueWave = () => (
         }}
   />
 )
+const RedOrangeWave = () => (
+  <Wave fill="url(#gradient)">
+  <defs>
+    <linearGradient id="gradient" gradientTransform="rotate(90)">
+      <stop offset="10%"  stopColor="#d4af37" />
+      <stop offset="90%" stopColor="#f00" />
+    </linearGradient>
+  </defs>
+</Wave>
+)
 
 export {
-  StandartBlueWave
+  StandartBlueWave,
+  RedOrangeWave
 }
