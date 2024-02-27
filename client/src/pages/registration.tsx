@@ -15,13 +15,14 @@ import {SetAlert} from "../constants/popUps";
 import { DefautlProps } from "../types/component.props";
 import Loading from "../components/shared/loadingScreen";
 import React from "react";
+import { UserEdit } from "../types/databaseTypes";
 
 
 
 export function RegistrationForm({ setError, setMessage, message, error }: DefautlProps) {
     const { t } = useTranslation();
 
-    const navigate = useNavigate(); // Initialize the useNavigate hook
+    const navigate = useNavigate();
 
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
@@ -32,13 +33,20 @@ export function RegistrationForm({ setError, setMessage, message, error }: Defau
     const handleRegistration = async () => {
         try {
             setLoading(true);
+
+            const userData: UserEdit = { 
+                email: email, 
+                password: password, 
+                username: username, 
+                loggedIn: true 
+            }
     
             const response = await fetch('http://localhost:3001/registration', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password, username }),
+                body: JSON.stringify(userData),
             });
     
             if (!response.ok) {
@@ -127,10 +135,14 @@ export function RegistrationForm({ setError, setMessage, message, error }: Defau
                             <Link to="/login" color="blue" style={{ color: "blue" }}>{t('signIn')}</Link>
                         </form>
                     </Card>
-                </div><ReactSVG src="../assets/Sun.svg" /><SetAlert error={error} message={(message ? message : "")} /><div className="flex justify-end w-screen h-80">
-                        <StandartBlueWave />
-                    </div></>): (
-                    <Loading/>
+                </div>
+                <ReactSVG src="../assets/Sun.svg" />
+                <SetAlert error={error} message={(message ? message : "")} />
+                <div className="flex justify-end w-screen h-80">
+                    <StandartBlueWave />
+                </div>
+                </>): (
+                <Loading/>
                 )}
         </div>
     );

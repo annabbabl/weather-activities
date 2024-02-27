@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import * as admin from "firebase-admin";
 import serviceAccount from "./adminFirebase.json";
+import { getFirestore } from "firebase/firestore";
 
 
 const firebaseConfig = {

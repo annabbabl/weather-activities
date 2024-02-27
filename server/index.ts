@@ -1,16 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import cors from 'cors';
-import { 
-  indexRouter, 
-  testAPIRouter, 
-  usersRouter, 
-  registrationRouter,
-  loginRouter, 
-  profileRouter
-} from './routes'; 
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
+import { indexRouter } from './routes';
+import { registrationRouter } from './handler/registration';
+import { profileRouter } from './handler/profile';
 
 dotenv.config();
 
@@ -32,10 +27,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/', indexRouter); // Index router
-app.use('/user', usersRouter); // User router
-app.use('/api', testAPIRouter); // API router
-app.use('/testAPI', testAPIRouter); // Test API router
-app.use('/login', loginRouter); // Login router
 app.use('/registration', registrationRouter); // Registration router
 app.use('/profile', profileRouter); // Profile router
 

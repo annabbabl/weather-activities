@@ -4,6 +4,7 @@ module.exports = withMT({
   content: [],
   theme: {
     extend: {},
+   
   },
   plugins: [],
 });

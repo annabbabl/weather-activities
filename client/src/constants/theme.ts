@@ -2,15 +2,20 @@ const GOOD_WEATHER_COLORS = {
     background: "#F0FAFF",
     thirdColor: "#1d4ed8",
     secondaryColor: "#c7d2fe",
-    lightYellow: '#fef08a', 
-    darkYellow: '#facc15'
+    forthColor: '#ffce32', 
+};
+const BAD_WEATHER_COLORS = {
+    background: "#C3CEDA",
+    thirdColor: "#0C4160",
+    secondaryColor: "#738FA7",
+    forthColor: '#071330', 
 };
 
-const BAD_WEATHER_COLORS = {
-    light: "20%",
-    extraLight: "15%",
-    middle: '31%',
-    darker: "59%",
+const SNOW_COLORS = {
+    background: "#E8EEF1",
+    secondaryColor: "#738FA7",
+    thirdColor: "#0C4160", 
+    forthColor: "#071330", 
 };
 
 const FONT_COLORS = {
@@ -52,6 +57,7 @@ const IMAGES = {
 export {
     GOOD_WEATHER_COLORS, 
     BAD_WEATHER_COLORS,
+    SNOW_COLORS,
     FONT_COLORS, 
     FONT_SIZES,
     BORDER_SIZES,

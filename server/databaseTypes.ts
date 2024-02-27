@@ -1,32 +1,50 @@
+import { User } from "firebase/auth"
 
-
-type User = {
-    id? : string, 
-    email: string, 
-    password: string, 
-    username: string, 
-    created_at: any, 
-    loggedIn: boolean
-}
 type UserEdit = {
     id? : string, 
+    uid? : string, 
     email?: string, 
     password?: string, 
     username?: string, 
+    displayName?: string, 
     created_at?: any, 
     loggedIn?: boolean
     profilePicture?: string,
-    posts?: Array<PostEdit>
+    savedPosts?: Array<string>,
+    allowedLocation?: boolean
 }
 
+type  Likes = {
+    amount?: number, 
+    likedUser?: Array<string>
+}
+
+
+type Weather = {
+    weather?: any,
+    temp?: any |undefined, 
+    pressure?: float| number | undefined, 
+    humidity?: float| number | undefined, 
+    wind_speed?: float| number | undefined, 
+    wind_deg?: float | number | undefined, 
+    clouds?: float | number | undefined, 
+    rain?: float | number | undefined, 
+    creationDate?: Date, 
+    day?: string, 
+    date? : Date
+}
 
 type PostEdit = {
     id? : string, 
     createdBy?: string,
-    created_at?: any, 
+    city?: string, 
+    weather?: Weather, 
     content?: string, 
     title?: string, 
-    likes?: number
+    likes?: Likes, 
+    createdFor? : Date | string, 
+    userImage?: string | null | undefined, 
+    username?: string | null | undefined, 
 }
 
 type Post = {
@@ -41,5 +59,6 @@ export type {
     User,
     UserEdit, 
     Post, 
-    PostEdit
+    PostEdit,
+    Weather
 }

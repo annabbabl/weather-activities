@@ -11,16 +11,13 @@ import { Login } from '../../pages/login';
 import ProfilePage from '../../pages/profile/profilePage';
 import ActivitiesScreen from '../../pages/activities';
 import { GOOD_WEATHER_COLORS } from '../../constants/theme';
-import { User } from 'firebase/auth';
 import AboutPage from '../../pages/aboutPage';
+import { FIREBASE_AUTH } from '../../firebase.config';
+import SavePage from '../../pages/savePage';
+import { AnimatePresence } from "framer-motion";
 
 
-interface UpperBarProps {
-  currentUser: User | undefined;
-}
-
-
-const UpperBar: React.FC<UpperBarProps> = ({ currentUser }) => {
+const UpperBar = () => {
 
   const [value, setValue] = useState('activities');
   const [, setPath] = useState('/');
@@ -55,24 +52,30 @@ const UpperBar: React.FC<UpperBarProps> = ({ currentUser }) => {
     <Box sx={{ width: '100%', typography: 'body1', borderColor: 'divider'}}>
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider',backgroundColor: GOOD_WEATHER_COLORS.secondaryColor }}>
+        <AnimatePresence>
           <TabList onChange={handleChange} aria-label={t('upperBar')} textColor="primary" centered>
             <Tab label={t('activities')} value="activities" />
             <Tab label={t('saved')} value="saved" />
-            <Tab label={t('profile')} value={ currentUser ? "profile" : "registration"}/>
+            <Tab label={t('profile')} value={ FIREBASE_AUTH.currentUser ? "profile" : "registration"}/>
             <Tab label={t('about')} value={"aboutPage"}/>
           </TabList>
+        </AnimatePresence>
         </Box>
         <TabPanel value="activities">
-          <ActivitiesScreen />
+          <ActivitiesScreen setMessage={setMessage} setError={setError} message={message} error={error}/>
         </TabPanel>
-        <TabPanel value="saved">{t('saved')}</TabPanel>
-        <TabPanel value={ currentUser ? "profile" : "registration"}>
+        <TabPanel value="saved">
+          <SavePage setMessage={setMessage} setError={setError} message={message} error={error}/>
+        </TabPanel>
+        <TabPanel value={ FIREBASE_AUTH.currentUser ? "profile" : "registration"}>
+          <AnimatePresence>
             <Routes>
               <Route path="/registration" element={<RegistrationForm setMessage={setMessage} setError={setError} message={message} error={error}/>} />
               <Route path="/login" element={<Login setMessage={setMessage} setError={setError} message={message} error={error}/>} />
               <Route path='/profile' element={<ProfilePage setEdit={setEdit} setPath={setPath} edit={edit} setMessage={setMessage} setError={setError} message={message} error={error}/>} />
               {/* Define more routes as needed */}
             </Routes>
+          </AnimatePresence>
         </TabPanel>
         <TabPanel value="aboutPage">
           <AboutPage/>

@@ -35,7 +35,7 @@ export function Login({ setError, setMessage, message, error }: DefautlProps) {
         const idToken = await userCredential.user.getIdToken(); 
     
         const response = await fetch('http://localhost:3001/login', {
-          method: 'POST',
+          method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -54,7 +54,6 @@ export function Login({ setError, setMessage, message, error }: DefautlProps) {
         }
         setMessage?.("")
         setError?.(false)
-        navigate('/profile');
       } catch (error) {
         console.error(error);
       } finally {

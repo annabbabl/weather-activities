@@ -21,10 +21,15 @@ interface AuthProps extends DefautlProps {
     setPassword?: React.Dispatch<React.SetStateAction<string>>;
     setUsername?: React.Dispatch<React.SetStateAction<string | null | undefined>>;
     setPath?: React.Dispatch<React.SetStateAction<string>>;
-   
+}
+interface DropdwonProps extends DefautlProps {
+    items: Array<string>, 
+    title: string, 
+    handleClick?: React.Dispatch<React.SetStateAction<any>>;
 }
 
 export type {
     DefautlProps,
-    AuthProps
+    AuthProps,
+    DropdwonProps
 }

@@ -9,6 +9,7 @@ import { useState } from "react";
 import '../../constants/i18next'
 import { useTranslation } from "react-i18next";
 import { AuthProps } from "../../types/component.props";
+import { useNavigate } from 'react-router-dom'; 
 import { updateEmail } from "firebase/auth";
 import { updatePassword, updateProfile } from "firebase/auth";
 import {SetAlert} from "../../constants/popUps";
@@ -21,19 +22,26 @@ export function EditProfile({username, password, email, imgUrl, setEmail, setPas
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const currentUser = FIREBASE_AUTH.currentUser; 
+    const navigate = useNavigate(); 
+
 
     const [message ] = useState(""); 
     const [error] = useState(false); 
 
-    const localemail = email ? email : ""
-    const localpassword = password ? password : ""
-
     const updateUserSettings = async() => {
+
+      if(!currentUser){
+        navigate('/login');
+        return
+      }
+
       try{
         setLoading(true); 
+        const idToken = await currentUser.getIdToken(true);
+
 
         const updatedUserData : UserEdit = {
-          id: currentUser?.uid,
+          id: currentUser.uid,
           email: email, 
           password: password, 
           username: username,
@@ -43,30 +51,40 @@ export function EditProfile({username, password, email, imgUrl, setEmail, setPas
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`,
           },
           body: JSON.stringify(updatedUserData),
         });
 
         const data = await response.json();
-        console.log(data, 17177)
-        console.log( response, 17177)
+
         if (response.ok) {
           console.log(data);
           setMessage?.(t('userSettingsUpdateError'));
           setError?.(false);
-          if(currentUser){
-            updateProfile(currentUser, {displayName:  username, photoURL: imgUrl})
-            await updatePassword(currentUser, localpassword);
-            await updateEmail(currentUser, localemail);
-          }
+
+          const localemail = email ? email : ""
+          const localpassword = password ? password : ""
+          
+          updateProfile(currentUser, {displayName:  username, photoURL: imgUrl})
+          await updatePassword(currentUser, localpassword);
+          await updateEmail(currentUser, localemail);
+          
           setEdit?.(false)
+          navigate('/profile');
         } else {
-          throw new Error(data.message || 'Login failed');
+          throw new Error(data.message || 'updating failed');
         }
+
       } catch (error: any) {
-        console.log(error, error)
-        setMessage?.(t('error')); 
-        setError?.(true); 
+        console.error(error);
+        if (error.code === 'auth/user-token-expired') {
+            navigate('/login'); 
+            setMessage?.(t('sessionExpired')); 
+        } else {
+            setMessage?.(t('error')); 
+        }
+        setError?.(true);
         throw error;
       } finally {
         setLoading(false);
