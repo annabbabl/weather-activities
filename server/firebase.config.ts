@@ -2,8 +2,9 @@
 import { initializeApp } from "firebase/app";
 import * as admin from "firebase-admin";
 import serviceAccount from "./adminFirebase.json";
-import { getFirestore } from "firebase/firestore";
 
+
+//Firebase Credentials and definition
 
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_APIKEY ,

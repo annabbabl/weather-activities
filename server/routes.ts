@@ -1,17 +1,21 @@
 import express, { Request, Response } from 'express';
-import multer, {  } from 'multer'
-import { FIREBASE_AUTH, FIRESTORE, FIRE_ADMIN, FIRE_STORAGE } from './firebase.config';
+import { FIREBASE_AUTH, FIRESTORE,} from './firebase.config';
 import weatherFetching from './weatherAPI';
-import { PostEdit, UserEdit } from './databaseTypes';
+import { PostEdit } from './databaseTypes';
 import { pickBy } from 'lodash'
+import { Timestamp } from 'firebase-admin/firestore'
 
 
-const upload = multer({ dest: 'uploads/' }); 
 
-const indexRouter = express.Router();
-const registrationRouter = express.Router();
-const profileRouter = express.Router();
+export const indexRouter = express.Router();
 
+/**
+ * Updates user login status based on Firebase authentication token.
+ * @route PATCH /login
+ * @param {Request} req Express request object, expects idToken in body.
+ * @param {Response} res Express response object.
+ * @returns Responds with user UID and success message upon successful login status update.
+ */
 indexRouter.patch('/login', async (req: Request, res: Response) => {
     const { idToken } = req.body;
   
@@ -40,14 +44,25 @@ indexRouter.patch('/login', async (req: Request, res: Response) => {
       res.status(400).json({ success: false, message: error.message });
     }
 });
-/*
-  We client sends out a idToken, if the user is logged in, the city, which it fetches from LocationiQ and 
-  the longitude and latitude, which it got from the js navigator.geolocation. 
-  We check if the user city needs to be updated, if so, we update it. 
-  After that we check, if the city is already in our database, if not, we set the weatherdata in our weathercollection. We fetched the weatherdata from OpenWeatherMap in weatherAPI.ts. 
-  If we have information about the weather in the city, we look, if this information is from the previous day, if so, the information gets updated, if not, we do nothing. 
-  Also we check if the date post were written for, are in the past, if so, we delete them. Since in firebase you can not compare dates properly, i decide to implement the logic just for the last past date
-*/
+
+
+/**
+ * Sets the location of the user and updates weather information accordingly.
+ * This endpoint allows updating the user's city and managing associated weather data, 
+ * including removal of outdated weather information and posts.
+ * @route POST /setLocation
+ * @param {Request} req Express request object, expects idToken, city, longitude, latitude in body.
+ * @param {Response} res Express response object.
+ * @returns Responds with success message and status upon successful location and weather update.
+ *//**
+ * Sets the location of the user and updates weather information accordingly.
+ * This endpoint allows updating the user's city and managing associated weather data, 
+ * including removal of outdated weather information and posts.
+ * @route POST /setLocation
+ * @param {Request} req Express request object, expects idToken, city, longitude, latitude in body.
+ * @param {Response} res Express response object.
+ * @returns Responds with success message and status upon successful location and weather update.
+ */
 indexRouter.post('/setLocation', async (req, res) => {
   const { idToken, city, longitude, latitude } = req.body;
 
@@ -66,15 +81,11 @@ indexRouter.post('/setLocation', async (req, res) => {
 
       const weatherCollectionRef = FIRESTORE.collection("weatherInformation");
       const currentDate = new Date();
-
-      const formattedCurrentDate = [
-        ('0' + currentDate.getDate()).slice(-2),
-        ('0' + (currentDate.getMonth() + 1)).slice(-2),
-        currentDate.getFullYear() 
-      ].join('-');
-
-
       currentDate.setHours(0, 0, 0, 0);
+
+      const endDate = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000); 
+      const currentTimestamp = Timestamp.fromDate(currentDate);
+      const endTimestamp = Timestamp.fromDate(endDate);  
 
       const cityWeatherSnapshot = await weatherCollectionRef
         .where("city", "==",city)
@@ -86,7 +97,7 @@ indexRouter.post('/setLocation', async (req, res) => {
 
           const oldWeatherSnapshot = await weatherCollectionRef
             .where("city", "==",city)
-            .where("creationDate", "==", formattedCurrentDate)
+            .where("endDate", "<", currentTimestamp)
             .get();
 
           if (!oldWeatherSnapshot.empty) {
@@ -108,7 +119,8 @@ indexRouter.post('/setLocation', async (req, res) => {
                   batch.set(doc.ref, {
                     ...dayWeather,
                     city,
-                    creationDate: formattedCurrentDate,
+                    startDate: currentTimestamp,
+                    endDate: endTimestamp,
                   });
                 });
               }
@@ -120,23 +132,16 @@ indexRouter.post('/setLocation', async (req, res) => {
           weather.forEach((dayWeather: any) => {
             const newWeatherDocumentRef = weatherCollectionRef.doc(); // Create a new document reference for each day
             dayWeather.city = city;
-            dayWeather.creationDate = formattedCurrentDate;
+            dayWeather.creationDate = currentTimestamp;
+            dayWeather.endDate =  endTimestamp; 
             batch.set(newWeatherDocumentRef, dayWeather);
         });
       }
       await batch.commit();
 
       const postsCollectionRef = FIRESTORE.collection("posts");
-      const pastDay = new Date(currentDate); 
-      pastDay.setDate(pastDay.getDate() - 1)      
 
-      const formattedPastDate = [
-        ('0' + pastDay.getDate()).slice(-2),
-        ('0' + (pastDay.getMonth() + 1)).slice(-2),
-        pastDay.getFullYear() 
-      ].join('-');
-
-      const oldPostsSnapshot = await postsCollectionRef.where("createdFor", "==",formattedPastDate).get();
+      const oldPostsSnapshot = await postsCollectionRef.where("endDate", "<",currentDate).get();
       
       const userCollectionRef = FIRESTORE.collection("users");
 
@@ -161,7 +166,6 @@ indexRouter.post('/setLocation', async (req, res) => {
               userBatch.update(userDocRef, { savedPosts: updatedSavedPosts }); 
             });
 
-            // Commit the user updates
             await userBatch.commit();
         }
       }
@@ -172,6 +176,14 @@ indexRouter.post('/setLocation', async (req, res) => {
   }
 });
 
+
+/**
+ * Updates the like count of a post based on user interactions.
+ * @route PATCH /likePost
+ * @param {Request} req Express request object, expects id, amount, likedUser in body.
+ * @param {Response} res Express response object.
+ * @returns Responds with updated like data and success message upon successful update.
+ */
 indexRouter.patch('/likePost', async (req: Request, res: Response) => {
   const { id, amount, likedUser } = req.body;
 
@@ -219,15 +231,24 @@ indexRouter.patch('/savePost', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * Uploads a new post to the database with given user and post details.
+ * @route POST /uploadPost
+ * @param {Request} req Express request object, expects post details like id, content, createdBy, etc., in body.
+ * @param {Response} res Express response object.
+ * @returns Responds with success message and post details upon successful upload.
+ */
 
 indexRouter.post('/uploadPost', async (req: Request, res: Response) => {
-  const { id, content, createdBy, createdFor, city, weather, username, userImage, likes, sendImg } = req.body;
+  const { id, content, createdBy, endDate, createdFor, cretaedOn,  city, weather, username, userImage, likes, sendImg } = req.body;
 
   try {
     const post: PostEdit = {
       content, 
       createdBy, 
-      createdFor, 
+      createdFor,
+      cretaedOn, 
+      endDate,  
       city, 
       weather,
       username: username || "", 
@@ -259,132 +280,3 @@ indexRouter.post('/uploadPost', async (req: Request, res: Response) => {
 });
 
 
-profileRouter.post('/uploadPicture', upload.single('file'), async (req: Request, res: Response) => {
-  const { file, body: { uid } } = req;
-
-  if (!file) {
-    return res.status(400).json({ success: false, message: "No file uploaded" });
-  }
-
-  try {
-    const bucket = FIRE_STORAGE.bucket(); 
-    const storageRef = bucket.file(file.originalname); 
-
-    await storageRef.save(file.buffer, {
-      contentType: file.mimetype,
-    });
-
-    const downloadURL = await storageRef.getSignedUrl({
-      action: 'read',
-      expires: '03-09-2491'
-    });
-
-    const userRef = FIRESTORE.collection('users').doc(uid);
-    await userRef.update({ profilePicture: downloadURL[0] });
-
-    await FIREBASE_AUTH.updateUser(uid, { photoURL: downloadURL[0] });
-
-    res.json({ success: true, message: "File uploaded successfully", downloadURL: downloadURL[0] });
-  } catch (error: any) {
-    console.error('Error uploading file:', error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-
-
-profileRouter.post('/editProfile', async (req: Request, res: Response) => {
-  const { id, email, username, password } = req.body;
-
-  try {    
-
-    const updatedData: UserEdit  = {
-      email: email, 
-      password: password, 
-      username: username,
-    }
-
-    const userRef = FIRESTORE.collection('users').doc(id);
-
-    await userRef.set(updatedData)
-    .then(() => {
-        console.log('Profile successfully updated!');
-        FIREBASE_AUTH.updateUser(id, {displayName: username, email: email, password: password})
-
-        res.status(200).json({
-          status: "success",
-          message: "User status updated successfully",
-          uid: id,
-          username: username, 
-          password: password,
-          email: email
-        });
-    })
-    .catch((error: any) => {
-        console.error('Error updating Profile:', error);
-        throw error;
-    })
-
-  } catch (error: any) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-});
-
-profileRouter.post('/logout', async (req: Request, res: Response) => {
-  const { id } = req.body;
-
-  try {    
-       
-    const userRef = FIRESTORE.collection('users').doc(id);
-
-    await userRef.set({ loggedIn: false })
-    .then(() => {
-        console.log('Profile successfully updated!');
-        res.status(200).json({
-          status: "success",
-          message: "User status updated successfully",
-          id: id,
-        });
-    })
-    .catch((error: any) => {
-        console.error('Error updating Profile:', error);
-        throw error;
-    })
-
-  } catch (error: any) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-});
-
-registrationRouter.post('/', async (req, res) => {
-    const { email, password, username, loggedIn } = req.body;
-
-    try {
-        const userRecord: UserEdit = await FIRE_ADMIN.auth().createUser({
-            email: email,
-            password: password,
-            displayName: username,
-        });
-
-        const usersCollection = FIRESTORE.collection('users');
-        
-        if(userRecord?.uid){
-          await usersCollection.doc(userRecord?.uid).set({
-            email: email,
-            username: username,
-            created_at: Date.now(),
-            loggedIn: loggedIn,
-        });
-        }
-        
-        res.status(201).send({ uid: userRecord.uid, email: userRecord.email, username: userRecord.displayName });
-      } catch (error: any) {
-        console.error('Registration error:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-
-export { 
-  indexRouter, 
-};

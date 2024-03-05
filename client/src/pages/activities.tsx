@@ -7,18 +7,41 @@ import React from 'react';
 import { DefautlProps } from '../types/component.props';
 import { FIREBASE_AUTH, FIRESTORE } from '../firebase.config';
 import Loading from '../components/shared/loadingScreen';
-import QuillMessage from '../components/BlazorQuill';
 import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { Typography } from '@material-tailwind/react';
 import {LocationOn, DeviceThermostat} from '@mui/icons-material';
-import WeatherIcon from '../components/weatherIcon';
 import { SetAlert } from '../constants/popUps';
 import { Likes, PostEdit, Weather } from '../types/databaseTypes';
 import PostComponent from '../components/shared/postComponent';
 import { Box } from '@mui/material';
 import FlipMove from 'react-flip-move';
 import { BAD_WEATHER_COLORS, GOOD_WEATHER_COLORS, SNOW_COLORS } from '../constants/theme';
+import QuillMessage from '../components/shared/BlazorQuill';
+import WeatherIcon from '../components/shared/weatherIcon';
 
+
+/**
+ * Functional React component for the activities screen.
+ * This component displays weather information, and allows for new posts creation.
+ * It includes dynamic weather-based theming and utilizes a parallax effect for an engaging user experience.
+ * The screen also provides functionality to log out the current user.
+ *
+ * @component
+ * @example
+ * <ActivitiesScreen 
+ *   setMessage={setMessage}
+ *   setError={setError}
+ *   message="Success"
+ *   error={false}
+ * />
+ *
+ * @param {DefautlProps} props The properties passed to the ActivitiesScreen component.
+ * @param {Function} props.setMessage Setter function to update the message state.
+ * @param {Function} props.setError Setter function to update the error state.
+ * @param {string} props.message Current message to be displayed.
+ * @param {boolean} props.error Indicates if there is an error state.
+ * @returns {React.ReactElement} The React component for the activities screen.
+ */
 
 export default function ActivitiesScreen({setMessage, setError, message, error}: DefautlProps) {
     const { t } = useTranslation();
@@ -236,17 +259,30 @@ export default function ActivitiesScreen({setMessage, setError, message, error}:
 
     useEffect(() => {
         const fetchPostData = async () => {
-            if (!city || !currentWeatherData?.date) return; 
+            if (!city || !currentWeatherData?.date) return;
+    
+            const currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0);
+
             try {
                 setLoading(true);
                 const postsCollectionRef = collection(FIRESTORE, "posts");
-                const q = city ? query(postsCollectionRef, where("city", "==", city), 
-                                                    where("createdFor", "==", currentWeatherData?.date)) :
-                                                    query(postsCollectionRef, where("createdFor", "==", currentWeatherData?.date)) ;
+                let q;
     
+                if (city) {
+                    // Query posts by city and createdFor date range
+                    q = query(postsCollectionRef, 
+                              where("city", "==", city), 
+                              where("createdFor", "==", currentWeatherData.day))
+                } else {
+                    // Query posts by createdFor date range only
+                    q = query(postsCollectionRef, 
+                        where("createdFor", "==", currentWeatherData.day))
+                    }
                 const postDocSnapshot = await getDocs(q);
-        
+
                 if (!postDocSnapshot.empty) {
+
                     let postDataArray = postDocSnapshot.docs.map(doc => {
                         const docData = doc.data();
                         const likes = docData.likes ? {
@@ -254,11 +290,12 @@ export default function ActivitiesScreen({setMessage, setError, message, error}:
                             likedUser: docData.likes.likedUser || [],
                         } : { amount: 0, likedUser: [] };
                         return {
-                            id: doc.id, 
+                            id: doc.id,
                             likes,
                             ...docData,
                         };
                     });
+
                     postDataArray = postDataArray.sort((a, b) => b.likes.amount - a.likes.amount);
                     setPosts(postDataArray);
                 } else {
@@ -266,7 +303,7 @@ export default function ActivitiesScreen({setMessage, setError, message, error}:
                     setPosts([]);
                 }
             } catch (error) {
-                console.error('Error fetching posts data:', error)
+                console.error('Error fetching posts data:', error);
             } finally {
                 setLoading(false);
             }
@@ -394,6 +431,7 @@ export default function ActivitiesScreen({setMessage, setError, message, error}:
                     username={currentUser?.displayName}
                     userImage={currentUser?.photoURL}
                     city={city}
+                    day={day}
                     weather={currentWeatherData?.weather[0]?.description}
                     addNewPost={addNewPost}
                 />

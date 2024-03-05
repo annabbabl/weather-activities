@@ -1,4 +1,5 @@
 
+//custom type definitions
 
 type WeatherPlace = {
     weather: Array<any>,
@@ -9,7 +10,8 @@ type WeatherPlace = {
     wind_deg: float | number | undefined, 
     clouds: float | number | undefined, 
     rain: float | number | undefined, 
-    creationDate: Date, 
+    startDate? : any, 
+    endDate? : any, 
     day: string
 }
 
@@ -30,7 +32,8 @@ type PostEdit = {
     title?: string, 
     likes?: Like, 
     img?: string,
-    createdFor? : Date | string, 
+    createdFor? : any, 
+    cretaedOn? : any, 
     userImage?: string | null | undefined, 
     username?: string | null | undefined, 
 }

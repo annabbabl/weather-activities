@@ -8,7 +8,39 @@ import SendSharp from "@mui/icons-material/SendSharp";
 import { useNavigate } from "react-router-dom";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"; 
 import { v4 as uuidv4 } from 'uuid';
+import { Timestamp } from "firebase/firestore";
 
+
+/**
+ * Functional React component for creating and submitting posts with a rich text editor.
+ * This component provides a Quill rich text editor for users to compose posts, and a send button to submit these posts.
+ * It handles image extraction from the editor's content, uploads the extracted image to Firebase Storage,
+ * and submits the post's data, including the post content and associated metadata, to the backend server.
+ *
+ * @component
+ * @example
+ * <QuillMessage
+ *   setLoading={setLoading}
+ *   createdBy="userId"
+ *   username="johnDoe"
+ *   userImage="http://example.com/johndoe.jpg"
+ *   city="New York"
+ *   weather={{ temp: 20, description: "Sunny" }}
+ *   addNewPost={addNewPost}
+ *   day="Monday"
+ * />
+ *
+ * @param {QuillMessageProperties} props - The properties passed to the QuillMessage component.
+ * @param {React.Dispatch<React.SetStateAction<boolean>>} props.setLoading - Setter function to update the loading state.
+ * @param {Function} props.addNewPost - Function to add the new post to the list of posts.
+ * @param {string | undefined} props.createdBy - The ID of the user creating the post.
+ * @param {string | undefined | null} props.username - The username of the user creating the post.
+ * @param {string | undefined | null} props.userImage - The profile image URL of the user creating the post.
+ * @param {string} props.city - The city associated with the weather information in the post.
+ * @param {any} props.weather - The weather data to be included in the post.
+ * @param {string} props.day - The day for which the post is being created.
+ * @returns {React.ReactElement} A React component for creating and submitting posts.
+ */
 
 interface QuillMessageProperties {
     setLoading: React.Dispatch<React.SetStateAction<boolean>>, 
@@ -18,6 +50,7 @@ interface QuillMessageProperties {
     userImage: string| undefined | null, 
     city: string, 
     weather: any, 
+    day: string
 }
 
 
@@ -30,6 +63,7 @@ export default function QuillMessage({
     userImage, 
     weather, 
     addNewPost, 
+    day
     }: QuillMessageProperties) {
         
         
@@ -37,6 +71,14 @@ export default function QuillMessage({
     const { t } = useTranslation();
     const navigate = useNavigate();
     const createdFor = new Date(); 
+    createdFor.setHours(0, 0, 0, 0);
+
+
+    const endDate = new Date(createdFor.getTime() + 7 * 24 * 60 * 60 * 1000); 
+    const endTimestamp = Timestamp.fromDate(endDate);  
+    const cretaedOn = Timestamp.fromDate(createdFor);  
+
+
 
     const uploadImageFromUrl = async (imageUrl: string) => {
         if (!imageUrl) return;
@@ -104,17 +146,11 @@ export default function QuillMessage({
         'image',
         'color'
     ]
-    
-    const formattedDate = [
-        ('0' + createdFor.getDate()).slice(-2),
-        ('0' + (createdFor.getMonth() + 1)).slice(-2),
-        createdFor.getFullYear() 
-    ].join('-');
 
     const sendPost = async () => {
         if (!createdBy) {
             navigate('/login');
-            return; // Prevent further execution if not logged in
+            return; 
         }
     
         setLoading(true);
@@ -131,13 +167,17 @@ export default function QuillMessage({
             id,
             content: newValue,
             createdBy,
-            createdFor: formattedDate,
+            createdFor: day,
+            cretaedOn: cretaedOn,
             city,
+            endDate: endTimestamp,
             weather,
             likes,
             username: username || "",
             userImage: userImage || "",
         };
+        console.log(postEdit, 1289289)
+        
         try {
             const serverResponse = await fetch('http://localhost:3001/uploadPost', {
                 method: 'POST',
@@ -153,8 +193,8 @@ export default function QuillMessage({
                 throw new Error('Server response was not ok.');
             }
 
-            const responseData = await serverResponse.json(); // Assuming you want to do something with response
-            addNewPost(responseData.post); // Assuming you want to add the returned post
+            const responseData = await serverResponse.json(); 
+            addNewPost(responseData.post); 
             setValue('');
         } catch (error) {
             console.error('Error:', error);

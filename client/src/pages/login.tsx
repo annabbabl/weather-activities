@@ -15,7 +15,32 @@ import { DefautlProps } from "../types/component.props";
 import Loading from "../components/shared/loadingScreen";
 import { FIREBASE_AUTH } from "../firebase.config";
 import { signInWithEmailAndPassword } from "firebase/auth";
-   
+
+/**
+ * Functional React component for the login page.
+ * This component provides a user interface for signing in with email and password using Firebase Authentication.
+ * It displays a form for the user to input their credentials and submit for authentication.
+ * Error and success messages are managed through props and displayed using the SetAlert component.
+ * The user is navigated to the profile page upon successful login.
+ *
+ * @component
+ * @example
+ * <Login 
+ *   setError={setError}
+ *   setMessage={setMessage}
+ *   message="Incorrect login details"
+ *   error={true}
+ * />
+ *
+ * @param {DefautlProps} props - The properties passed to the Login component.
+ * @param {Function} props.setError - Setter function to update the error state.
+ * @param {Function} props.setMessage - Setter function to update the message state.
+ * @param {string} props.message - Current message to be displayed as feedback.
+ * @param {boolean} props.error - Indicates if there is an error state.
+ * @returns {React.ReactElement} A React component for the login screen.
+ */
+
+
 export function Login({ setError, setMessage, message, error }: DefautlProps) {
     const { t } = useTranslation();
 

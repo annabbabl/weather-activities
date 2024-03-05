@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router} from 'react-router-dom';
 import UpperBar from './components/navigation/upperBar';
-import ActivitiesScreen from './pages/activities';
 
 
 interface AppState {

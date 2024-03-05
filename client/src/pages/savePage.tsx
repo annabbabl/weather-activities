@@ -3,7 +3,6 @@ import {
   } from "@material-tailwind/react";
 import '../constants/i18next'
 import { useTranslation } from "react-i18next";
-import { StandartBlueWave } from "../components/shared/waves";
 import { useEffect, useState } from "react";
 import { FIREBASE_AUTH, FIRESTORE } from "../firebase.config";
 import { collection, doc, documentId, getDoc, getDocs, query, where } from "firebase/firestore";
@@ -14,6 +13,30 @@ import Loading from "react-loading";
 import { PostEdit } from "../types/databaseTypes";
 import PostComponent from "../components/shared/postComponent";
 
+
+/**
+ * Functional React component for the saved posts page.
+ * This component displays posts saved by the current user.
+ * It fetches the user's saved posts from Firestore based on their user ID and then retrieves each saved post.
+ * If there are no saved posts or if the user is not logged in, appropriate messages are displayed.
+ * The component also manages loading states and displays error messages using the SetAlert component.
+ *
+ * @component
+ * @example
+ * <SavePage 
+ *   setError={setError}
+ *   setMessage={setMessage}
+ *   message="Failed to fetch saved posts"
+ *   error={true}
+ * />
+ *
+ * @param {DefautlProps} props - The properties passed to the SavePage component.
+ * @param {Function} props.setError - Setter function to update the error state.
+ * @param {Function} props.setMessage - Setter function to update the message state.
+ * @param {string} props.message - Current message to be displayed as feedback.
+ * @param {boolean} props.error - Indicates if there is an error state.
+ * @returns {React.ReactElement} A React component for the saved posts screen.
+ */
 
 export default function SavePage({setMessage, setError, message, error}: DefautlProps) {
     const { t } = useTranslation();

@@ -1,5 +1,8 @@
 import { User } from "firebase/auth"
 
+
+//custom type definitions
+
 type UserEdit = {
     id? : string, 
     uid? : string, 
@@ -19,7 +22,6 @@ type  Likes = {
     likedUser?: Array<string>
 }
 
-
 type Weather = {
     weather?: any,
     temp?: any |undefined, 
@@ -29,7 +31,8 @@ type Weather = {
     wind_deg?: float | number | undefined, 
     clouds?: float | number | undefined, 
     rain?: float | number | undefined, 
-    creationDate?: Date, 
+    startDate? : any, 
+    endDate? : any, 
     day?: string, 
     date? : Date
 }
@@ -37,12 +40,14 @@ type Weather = {
 type PostEdit = {
     id? : string, 
     createdBy?: string,
+    endDate? : any, 
     city?: string, 
     weather?: Weather, 
     content?: string, 
     title?: string, 
     likes?: Likes, 
-    createdFor? : Date | string, 
+    createdFor? : string, 
+    cretaedOn? : any, 
     userImage?: string | null | undefined, 
     username?: string | null | undefined, 
 }

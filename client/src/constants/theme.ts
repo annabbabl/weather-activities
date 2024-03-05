@@ -1,3 +1,5 @@
+//Constants for styling
+
 const GOOD_WEATHER_COLORS = {
     background: "#F0FAFF",
     thirdColor: "#1d4ed8",

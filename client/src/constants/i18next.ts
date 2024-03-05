@@ -3,6 +3,15 @@ import { initReactI18next } from 'react-i18next';
 import Backend from 'i18next-http-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
+
+/**
+ * Initializes i18next with several plugins and configuration settings.
+ * Backend - Loads translations from a server.
+ * LanguageDetector - Detects the user's language.
+ * initReactI18next - Initializes the React binding for i18next.
+ * Object of language keys and their translation strings in Englisch and German
+ */
+
 i18n
   .use(Backend)
   .use(LanguageDetector)
@@ -171,6 +180,8 @@ i18n
                 information: "Information",
                 infomration : "Information",
                 description: "Description",
+                createdOn: "Created On",
+                messages:"Messages",
 
 
                 //about Page
@@ -313,6 +324,7 @@ i18n
                 overcastclouds: "Bedeckte Wolken",
                 moderaterain: "Leichter Regen" ,
                 postFrom: "Post von",
+                createdOn: "Erstellt am",
 
 
 

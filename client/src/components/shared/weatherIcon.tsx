@@ -5,6 +5,20 @@ import { FaCloudRain } from "react-icons/fa6";
 import { RiMistFill } from "react-icons/ri";
 
 
+/**
+ * Functional React component for rendering weather icons based on the weather description.
+ * This component maps different weather conditions to corresponding icons from Material UI and React Icons.
+ * It displays a specific icon based on the given weather description, which should typically be provided
+ * by a weather API response. The icon aims to visually represent the current weather condition.
+ *
+ * @component
+ * @example
+ * <WeatherIcon weatherDescription="clear sky" />
+ *
+ * @param {WeatherIconAttributes} props - The properties passed to the WeatherIcon component.
+ * @param {any} props.weatherDescription - The description of the current weather, which determines which icon is displayed.
+ * @returns {React.ReactElement} A React component displaying the appropriate weather icon.
+ */
 
 interface WeatherIconAttributes {
     weatherDescription: any

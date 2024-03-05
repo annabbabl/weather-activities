@@ -4,6 +4,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from 'firebase/storage';
 
+//Firebase Credentials and definition
 
 const firebaseConfig = {
   apiKey: "AIzaSyApdmGFx3XrJdY9r9bLyMXtAQmzGVGoPvg" ,

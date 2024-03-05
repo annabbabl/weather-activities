@@ -18,6 +18,30 @@ import React from "react";
 import { UserEdit } from "../types/databaseTypes";
 
 
+/**
+ * Functional React component for the registration form.
+ * This component provides a user interface for signing up new users with email, username, and password.
+ * It performs validation and communication with the backend server to create new user accounts.
+ * Upon successful registration, the user is navigated to the profile page.
+ * The component also manages loading states and displays error messages using the SetAlert component.
+ *
+ * @component
+ * @example
+ * <RegistrationForm 
+ *   setError={setError}
+ *   setMessage={setMessage}
+ *   message="Please fill all fields."
+ *   error={true}
+ * />
+ *
+ * @param {DefautlProps} props - The properties passed to the RegistrationForm component.
+ * @param {Function} props.setError - Setter function to update the error state.
+ * @param {Function} props.setMessage - Setter function to update the message state.
+ * @param {string} props.message - Current message to be displayed as feedback.
+ * @param {boolean} props.error - Indicates if there is an error state.
+ * @returns {React.ReactElement} A React component for the registration form screen.
+ */
+
 
 export function RegistrationForm({ setError, setMessage, message, error }: DefautlProps) {
     const { t } = useTranslation();

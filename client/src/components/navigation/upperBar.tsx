@@ -17,6 +17,21 @@ import SavePage from '../../pages/savePage';
 import { AnimatePresence } from "framer-motion";
 
 
+/**
+ * Functional React component for the upper navigation bar.
+ * This component utilizes MUI's TabContext and TabList for navigation between different pages
+ * like Activities, Saved, Profile, and About. It manages the current tab state and navigates
+ * the user to the respective page upon tab change. Additionally, it handles user authentication
+ * states for conditional navigation between the Login and Profile pages.
+ *
+ * @component
+ * @example
+ * <UpperBar />
+ *
+ * @returns {React.ReactElement} A Material UI Box component containing the navigation tabs
+ * and the corresponding content of the selected tab.
+ */
+
 const UpperBar = () => {
 
   const [value, setValue] = useState('activities');
@@ -58,21 +73,56 @@ const UpperBar = () => {
             <Tab label={t('saved')} value="saved" />
             <Tab label={t('profile')} value={ FIREBASE_AUTH.currentUser ? "profile" : "registration"}/>
             <Tab label={t('about')} value={"aboutPage"}/>
+            <Tab label={t('messages')} value={"messages"}/>
           </TabList>
         </AnimatePresence>
         </Box>
-        <TabPanel value="activities">
-          <ActivitiesScreen setMessage={setMessage} setError={setError} message={message} error={error}/>
-        </TabPanel>
-        <TabPanel value="saved">
-          <SavePage setMessage={setMessage} setError={setError} message={message} error={error}/>
-        </TabPanel>
+        <AnimatePresence>
+        <Routes>
+            <Route path="/" element={
+                <TabPanel value="activities">
+                    <ActivitiesScreen setMessage={setMessage} setError={setError} message={message} error={error} />
+                </TabPanel>
+            } />
+            <Route path="/saved" element={
+                <TabPanel value="saved">
+                    <SavePage setMessage={setMessage} setError={setError} message={message} error={error} />
+                </TabPanel>
+            } />
+            <Route path="/registration" element={
+                <TabPanel value="registration">
+                    <RegistrationForm setMessage={setMessage} setError={setError} message={message} error={error} />
+                </TabPanel>
+            } />
+            <Route path="/login" element={
+                <TabPanel value="login">
+                    <Login setMessage={setMessage} setError={setError} message={message} error={error} />
+                </TabPanel>
+            } />
+            <Route path="/profile" element={
+                <TabPanel value="profile">
+                    <ProfilePage setEdit={setEdit} setPath={setPath} edit={edit} setMessage={setMessage} setError={setError} message={message} error={error} />
+                </TabPanel>
+            } />
+            <Route path="/aboutPage" element={
+                <TabPanel value="aboutPage">
+                    <AboutPage />
+                </TabPanel>
+            } />
+            <Route path="/messages/:userId" element={
+                <TabPanel value="messages">
+                    <AboutPage />
+                </TabPanel>
+            } />
+        </Routes>
+      </AnimatePresence>
         <TabPanel value={ FIREBASE_AUTH.currentUser ? "profile" : "registration"}>
           <AnimatePresence>
             <Routes>
               <Route path="/registration" element={<RegistrationForm setMessage={setMessage} setError={setError} message={message} error={error}/>} />
               <Route path="/login" element={<Login setMessage={setMessage} setError={setError} message={message} error={error}/>} />
               <Route path='/profile' element={<ProfilePage setEdit={setEdit} setPath={setPath} edit={edit} setMessage={setMessage} setError={setError} message={message} error={error}/>} />
+              <Route path='/messages' element={<ProfilePage setEdit={setEdit} setPath={setPath} edit={edit} setMessage={setMessage} setError={setError} message={message} error={error}/>} />
               {/* Define more routes as needed */}
             </Routes>
           </AnimatePresence>

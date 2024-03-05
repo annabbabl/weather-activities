@@ -14,13 +14,46 @@ import { useTranslation } from 'react-i18next';
 import { Likes, PostEdit } from '../../types/databaseTypes';
 import { DefautlProps } from '../../types/component.props';
 import { Button } from '@mui/material';
+import { Link } from "react-router-dom";
 import { GOOD_WEATHER_COLORS } from '../../constants/theme';
 import { User } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
-import './postComponent.css';
 import '../../../node_modules/react-quill/dist/quill.snow.css';
 
+/**
+ * Functional React component for displaying a single post.
+ * This component shows the post's content, author, creation date, and associated images.
+ * It also allows users to like or save the post, updating the respective states and databases accordingly.
+ * The like and save statuses are reflected in the icon states and counts displayed.
+ * Additionally, if the post contains an image, it will be displayed within the card content.
+ *
+ * @component
+ * @example
+ * <PostComponent
+ *   post={post}
+ *   setMessage={setMessage}
+ *   setError={setError}
+ *   setLoading={setLoading}
+ *   currentUser={currentUser}
+ *   likes={likes}
+ *   setLikes={setLikes}
+ *   postLikes={postLikes}
+ *   savedPosts={savedPosts}
+ * />
+ *
+ * @param {PostComponentProps} props - The properties passed to the PostComponent.
+ * @param {PostEdit} props.post - The post data to be displayed.
+ * @param {Function} props.setMessage - Setter function to update the global message state.
+ * @param {Function} props.setError - Setter function to update the global error state.
+ * @param {Function} props.setLoading - Setter function to control the loading state.
+ * @param {User | null} props.currentUser - The current user's authentication object.
+ * @param {Likes | undefined} props.likes - The current likes state for the post.
+ * @param {Function | undefined} props.setLikes - Setter function to update the likes state for the post.
+ * @param {Likes} props.postLikes - The likes associated with the post.
+ * @param {Array<string>} props.savedPosts - Array containing the IDs of posts saved by the user.
+ * @returns {React.ReactElement} A React component representing a single post with interactive like and save features.
+ */
 
 interface PostComponentProps extends DefautlProps {
   post: PostEdit;
@@ -51,6 +84,17 @@ const PostComponent = forwardRef<HTMLDivElement, PostComponentProps>(({
   
   const [saved, setSaved] = useState( (savedPosts.find(postID => postID === post.id)) ? true: false)
 
+  
+  const date = post.cretaedOn ? new Date(post.cretaedOn.seconds * 1000): new Date()
+
+  // Now you can format the date as needed
+  const formattedDate = [
+      ('0' + date.getDate()).slice(-2), // Day
+      ('0' + (date.getMonth() + 1)).slice(-2), // Month (getMonth() returns 0-11)
+      date.getFullYear() // Year
+  ].join('.'); // Formats to DD-MM-YYYY
+
+  // Use formattedDate as needed
 
   setLikes?.(postLikes)
 
@@ -169,8 +213,7 @@ const PostComponent = forwardRef<HTMLDivElement, PostComponentProps>(({
                     </Avatar>
                 )
             }
-            title={post.username}
-            subheader={post.createdFor?.toString().replace(/-/g, '.')}
+            subheader={t("createdOn")+ formattedDate.toString()}
         />
       {post.img && ( 
         <CardMedia
@@ -182,6 +225,7 @@ const PostComponent = forwardRef<HTMLDivElement, PostComponentProps>(({
       )}
       <CardContent>
         <div className='ql-container ql-snow"'>
+        <Link to={`/messages/${currentUser?.uid}`} color="blue" style={{ color: "blue" }}>{post.username}</Link>
           {post.content  && (
             <div 
               className="ql-editor custom-content" // Add this line
