@@ -14,12 +14,14 @@ import { useTranslation } from 'react-i18next';
 import { Likes, PostEdit } from '../../types/databaseTypes';
 import { DefautlProps } from '../../types/component.props';
 import { Button } from '@mui/material';
+import { Typography } from '@material-tailwind/react';
 import { Link } from "react-router-dom";
 import { GOOD_WEATHER_COLORS } from '../../constants/theme';
 import { User } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import '../../../node_modules/react-quill/dist/quill.snow.css';
+import { FIREBASE_AUTH } from '../../firebase.config';
 
 /**
  * Functional React component for displaying a single post.
@@ -60,7 +62,7 @@ interface PostComponentProps extends DefautlProps {
   currentUser: User | null,
   likes?: Likes,
   postLikes: Likes,
-  savedPosts: Array<string>,
+  savedPosts?: Array<string>,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,
   setLikes?: React.Dispatch<React.SetStateAction<Likes>>,
 }
@@ -74,27 +76,32 @@ const PostComponent = forwardRef<HTMLDivElement, PostComponentProps>(({
   likes, 
   setLikes,
   postLikes, 
-  savedPosts
+  savedPosts,
+  setPath
 }, ref) => {
   const { t } = useTranslation();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
+  const firebaseUser = FIREBASE_AUTH.currentUser
   const [liked, setLiked] = useState((post.likes?.likedUser?.find(likeUser => likeUser === currentUser?.uid)? true: false))
   const [likeAmount, setLikeAmount] = useState(post?.likes?.amount ? post.likes.amount : 0)
   
-  const [saved, setSaved] = useState( (savedPosts.find(postID => postID === post.id)) ? true: false)
+  const [saved, setSaved] = useState( (savedPosts?.find(postID => postID === post.id)) ? true: false)
 
   
   const date = post.cretaedOn ? new Date(post.cretaedOn.seconds * 1000): new Date()
 
-  // Now you can format the date as needed
   const formattedDate = [
-      ('0' + date.getDate()).slice(-2), // Day
-      ('0' + (date.getMonth() + 1)).slice(-2), // Month (getMonth() returns 0-11)
+      ('0' + date.getDate()).slice(-2), 
+      ('0' + (date.getMonth() + 1)).slice(-2), 
       date.getFullYear() // Year
-  ].join('.'); // Formats to DD-MM-YYYY
+  ].join('.'); 
 
-  // Use formattedDate as needed
+  const messagePropData = {
+    userId: post.userId, 
+    chatUser: firebaseUser?.uid, 
+    chatname: post.username, 
+  }
 
   setLikes?.(postLikes)
 
@@ -104,16 +111,17 @@ const PostComponent = forwardRef<HTMLDivElement, PostComponentProps>(({
     }
 
     try {
-      let savedPostsLocal = savedPosts ?? []; 
+      let savedPostsLocal = savedPosts ?? [];
+      const s = savedPosts ?? []; 
 
       if(!saved) {
-        const newlyAddedPost = post.id ?? "";
-        savedPostsLocal = [...savedPosts, newlyAddedPost]; 
+        const newlyAddedPost = post.id ?? ""; // Safeguard against undefined post.id
+        savedPostsLocal = [...s, newlyAddedPost]; 
         setSaved(true)
         setLiked(true)
       } else {
         setSaved(false)
-        savedPostsLocal = savedPosts.filter(postID => post.id !== postID); 
+        savedPostsLocal = s.filter(postID => post.id !== postID); 
       }
 
       const response = await fetch('http://localhost:3001/savePost', {
@@ -225,7 +233,20 @@ const PostComponent = forwardRef<HTMLDivElement, PostComponentProps>(({
       )}
       <CardContent>
         <div className='ql-container ql-snow"'>
-        <Link to={`/messages/${currentUser?.uid}`} color="blue" style={{ color: "blue" }}>{post.username}</Link>
+        {firebaseUser?.uid !== post.userId ? (
+          <Link 
+            to={`/messages/${post.username}`} 
+            style={{ color: "blue" }}
+            state={messagePropData}
+            onClick={() => setPath?.("/messages")}
+          >
+            {post.username}
+          </Link>
+        ) : (
+          <Typography variant="h6" placeholder={t('infomration')}>
+            {post.username}
+          </Typography>
+        )}
           {post.content  && (
             <div 
               className="ql-editor custom-content" // Add this line

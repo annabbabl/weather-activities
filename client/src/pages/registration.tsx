@@ -160,7 +160,7 @@ export function RegistrationForm({ setError, setMessage, message, error }: Defau
                         </form>
                     </Card>
                 </div>
-                <ReactSVG src="../assets/Sun.svg" />
+                <ReactSVG src="/Sun.svg" />
                 <SetAlert error={error} message={(message ? message : "")} />
                 <div className="flex justify-end w-screen h-80">
                     <StandartBlueWave />

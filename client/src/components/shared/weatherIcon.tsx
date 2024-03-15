@@ -1,4 +1,4 @@
-import "../constants/i18next"
+import "../../constants/i18next"
 import 'react-quill/dist/quill.snow.css'; 
 import {AcUnit, WbSunny, Cloud, Thunderstorm} from '@mui/icons-material/';
 import { FaCloudRain } from "react-icons/fa6";

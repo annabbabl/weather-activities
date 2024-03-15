@@ -15,7 +15,7 @@ import { Likes, PostEdit, Weather } from '../types/databaseTypes';
 import PostComponent from '../components/shared/postComponent';
 import { Box } from '@mui/material';
 import FlipMove from 'react-flip-move';
-import { BAD_WEATHER_COLORS, GOOD_WEATHER_COLORS, SNOW_COLORS } from '../constants/theme';
+import { BAD_WEATHER_COLORS, GOOD_WEATHER_COLORS, IMAGE_STYLE_COVER, SNOW_COLORS, IMAGES } from '../constants/theme';
 import QuillMessage from '../components/shared/BlazorQuill';
 import WeatherIcon from '../components/shared/weatherIcon';
 
@@ -43,7 +43,7 @@ import WeatherIcon from '../components/shared/weatherIcon';
  * @returns {React.ReactElement} The React component for the activities screen.
  */
 
-export default function ActivitiesScreen({setMessage, setError, message, error}: DefautlProps) {
+export default function ActivitiesScreen({setPath, setMessage, setError, message, error}: DefautlProps) {
     const { t } = useTranslation();
     const currentUser = FIREBASE_AUTH.currentUser;
 
@@ -55,6 +55,7 @@ export default function ActivitiesScreen({setMessage, setError, message, error}:
     const [currentWeatherData, setCurrentWeatherData] = useState<Weather>();
     const [savedPosts, setSavedPosts] = useState<Array<string>>([])
     const [weatherTheme, setWeatherTheme] = useState(GOOD_WEATHER_COLORS)
+    const [imageUrl, setImageUrl] = useState(IMAGES.sun)
 
 
 
@@ -317,12 +318,15 @@ export default function ActivitiesScreen({setMessage, setError, message, error}:
             switch (true) {
                 case description.includes('clear') || description.includes('clouds'):
                     setWeatherTheme(GOOD_WEATHER_COLORS);
+                    setImageUrl(IMAGES.sun)
                     break;
                 case description.includes('snow'):
                     setWeatherTheme(SNOW_COLORS);
+                    setImageUrl(IMAGES.snow)
                     break;
                 default: // Treat other conditions as bad weather
                     setWeatherTheme(BAD_WEATHER_COLORS);
+                    setImageUrl(IMAGES.cloud)
                     break;
             }
         }
@@ -333,7 +337,7 @@ export default function ActivitiesScreen({setMessage, setError, message, error}:
    
     return (
         <div className='flex flex-col w-full  mt-10  justify-center items-center'>
-            <div className='flex flex-col w-full items-center  justify-center'>
+            <div className='flex flex-col w-full items-center  justify-center' style={{...IMAGE_STYLE_COVER, backgroundImage: `url(${imageUrl})`}}>
                 {!loading ? (
                     <>
                         <TabContext value={day}>
@@ -408,6 +412,7 @@ export default function ActivitiesScreen({setMessage, setError, message, error}:
                                                 likes={likes}
                                                 postLikes={post.likes ?? {}}
                                                 savedPosts={savedPosts}
+                                                setPath={setPath}
                                             />
                                         ))}
                                     </FlipMove>
@@ -429,6 +434,7 @@ export default function ActivitiesScreen({setMessage, setError, message, error}:
                     setLoading={setLoading}
                     createdBy={currentUser?.uid}
                     username={currentUser?.displayName}
+                    userId={currentUser?.uid}
                     userImage={currentUser?.photoURL}
                     city={city}
                     day={day}
@@ -436,6 +442,7 @@ export default function ActivitiesScreen({setMessage, setError, message, error}:
                     addNewPost={addNewPost}
                 />
             </div>
+           
         </div>
     );
 }

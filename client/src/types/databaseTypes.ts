@@ -36,6 +36,7 @@ type PostEdit = {
     cretaedOn? : any, 
     userImage?: string | null | undefined, 
     username?: string | null | undefined, 
+    userId?: string | null | undefined, 
 }
 
 type Like = {

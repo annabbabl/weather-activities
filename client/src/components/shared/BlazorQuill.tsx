@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../constants/i18next"
+import "../../constants/i18next"
 import { useTranslation } from 'react-i18next';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; 
@@ -51,6 +51,7 @@ interface QuillMessageProperties {
     city: string, 
     weather: any, 
     day: string
+    userId: string| undefined | null, 
 }
 
 
@@ -61,6 +62,7 @@ export default function QuillMessage({
     city, 
     username, 
     userImage, 
+    userId,
     weather, 
     addNewPost, 
     day
@@ -175,6 +177,7 @@ export default function QuillMessage({
             likes,
             username: username || "",
             userImage: userImage || "",
+            userId: userId || "",
         };
         console.log(postEdit, 1289289)
         

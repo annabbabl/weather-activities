@@ -218,7 +218,7 @@ indexRouter.patch('/savePost', async (req: Request, res: Response) => {
 
 
 indexRouter.post('/uploadPost', async (req: Request, res: Response) => {
-  const { id, content, createdBy, createdFor, city, weather, username, userImage, likes, sendImg } = req.body;
+  const { id, content, createdBy, createdFor, city, weather, username, userImage, likes, userId } = req.body;
 
   try {
     const post: PostEdit = {
@@ -228,9 +228,11 @@ indexRouter.post('/uploadPost', async (req: Request, res: Response) => {
       city, 
       weather,
       username: username || "", 
+      userId: userId, 
       userImage: userImage || "",
       likes: likes || { amount: 0, likedUser: [] } // Default like structure if not provided
     };
+    console.log(userId)
 
     const cleanedObject = pickBy(post, v => v !== undefined); // Clean object for undefined values
 

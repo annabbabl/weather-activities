@@ -240,7 +240,7 @@ indexRouter.patch('/savePost', async (req: Request, res: Response) => {
  */
 
 indexRouter.post('/uploadPost', async (req: Request, res: Response) => {
-  const { id, content, createdBy, endDate, createdFor, cretaedOn,  city, weather, username, userImage, likes, sendImg } = req.body;
+  const { id, content, createdBy, endDate, userId, createdFor, cretaedOn,  city, weather, username, userImage, likes, sendImg } = req.body;
 
   try {
     const post: PostEdit = {
@@ -251,6 +251,7 @@ indexRouter.post('/uploadPost', async (req: Request, res: Response) => {
       endDate,  
       city, 
       weather,
+      userId,
       username: username || "", 
       userImage: userImage || "",
       likes: likes || { amount: 0, likedUser: [] } // Default like structure if not provided

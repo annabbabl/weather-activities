@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import { indexRouter } from './routes';
 import { registrationRouter } from './handler/registration';
 import { profileRouter } from './handler/profile';
+import { messagesRouter } from './handler/message';
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use(cookieParser());
 app.use('/', indexRouter); // Index router
 app.use('/registration', registrationRouter); // Registration router
 app.use('/profile', profileRouter); // Profile router
+app.use('/messages', messagesRouter); // Message router
 
 app.use(function(err: ErrorWithStatus, req: Request, res: Response, next: NextFunction) {
   res.locals.message = err.message;

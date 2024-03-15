@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import * as admin from "firebase-admin";
 import serviceAccount from "./adminFirebase.json";
+import { getStorage } from 'firebase-admin/storage';
 
 
 //Firebase Credentials and definition
@@ -19,8 +20,9 @@ const firebaseConfig = {
 
 export const FIRE_ADMIN = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+  storageBucket: 'weatherapp-1243f.appspot.com'
 });
 export const FIREBASE_APP = initializeApp(firebaseConfig);
 export const FIREBASE_AUTH = FIRE_ADMIN.auth();
 export const FIRESTORE = FIRE_ADMIN.firestore();
-export const FIRE_STORAGE = FIRE_ADMIN.storage();
+export const FIRE_STORAGE = getStorage().bucket("files");

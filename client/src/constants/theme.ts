@@ -50,10 +50,22 @@ const SHADOWS = {
 };
 
 const IMAGES = {
-    sun: "../../assets/Sun.svg",
-    sunPNG: "../sun.png",
+    sun: "./Sun.svg",
+    snow: "./Snow.svg",
+    cloud: "/Cloud.svg",
+    icon: "/icon.svg",
 };
 
+const IMAGE_STYLE_COVER={
+    backgroundSize: 'cover', 
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center' 
+}
+const IMAGE_STYLE_CONTAIN={
+    backgroundSize: 'contain',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center' 
+}
 
 
 export {
@@ -65,5 +77,7 @@ export {
     BORDER_SIZES,
     OPACITIES,
     SHADOWS, 
-    IMAGES
+    IMAGES, 
+    IMAGE_STYLE_COVER, 
+    IMAGE_STYLE_CONTAIN
 }

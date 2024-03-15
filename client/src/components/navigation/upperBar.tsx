@@ -3,8 +3,8 @@ import Tab from '@mui/material/Tab';
 import '../../constants/i18next'
 import { TabContext, TabList , TabPanel} from '@mui/lab';
 import { useTranslation } from 'react-i18next';
-import { Routes, Route } from 'react-router-dom';
-import React, { useState } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { RegistrationForm } from '../../pages/registration';
 import { Login } from '../../pages/login';
@@ -15,7 +15,7 @@ import AboutPage from '../../pages/aboutPage';
 import { FIREBASE_AUTH } from '../../firebase.config';
 import SavePage from '../../pages/savePage';
 import { AnimatePresence } from "framer-motion";
-
+import MessagePage from '../../pages/messagePage';
 
 /**
  * Functional React component for the upper navigation bar.
@@ -33,6 +33,8 @@ import { AnimatePresence } from "framer-motion";
  */
 
 const UpperBar = () => {
+
+  const location = useLocation();
 
   const [value, setValue] = useState('activities');
   const [, setPath] = useState('/');
@@ -63,6 +65,33 @@ const UpperBar = () => {
     setError(false)
   };
 
+  useEffect(() => {
+    const path = location.pathname.split('/')[1]; 
+    switch (path) {
+        case '':
+            setValue('activities');
+            break;
+        case 'saved':
+            setValue('saved');
+            break;
+        case 'registration':
+        case 'login':
+            setValue(FIREBASE_AUTH.currentUser ? 'profile' : 'registration');
+            break;
+        case 'profile':
+            setValue('profile');
+            break;
+        case 'aboutPage':
+            setValue('aboutPage');
+            break;
+        case 'messages':
+            setValue('messages');
+            break;
+        default:
+            break;
+    }
+  }, [location]);
+
   return (
     <Box sx={{ width: '100%', typography: 'body1', borderColor: 'divider'}}>
       <TabContext value={value}>
@@ -78,57 +107,52 @@ const UpperBar = () => {
         </AnimatePresence>
         </Box>
         <AnimatePresence>
-        <Routes>
-            <Route path="/" element={
-                <TabPanel value="activities">
-                    <ActivitiesScreen setMessage={setMessage} setError={setError} message={message} error={error} />
-                </TabPanel>
-            } />
-            <Route path="/saved" element={
-                <TabPanel value="saved">
-                    <SavePage setMessage={setMessage} setError={setError} message={message} error={error} />
-                </TabPanel>
-            } />
-            <Route path="/registration" element={
-                <TabPanel value="registration">
-                    <RegistrationForm setMessage={setMessage} setError={setError} message={message} error={error} />
-                </TabPanel>
-            } />
-            <Route path="/login" element={
-                <TabPanel value="login">
-                    <Login setMessage={setMessage} setError={setError} message={message} error={error} />
-                </TabPanel>
-            } />
-            <Route path="/profile" element={
-                <TabPanel value="profile">
-                    <ProfilePage setEdit={setEdit} setPath={setPath} edit={edit} setMessage={setMessage} setError={setError} message={message} error={error} />
-                </TabPanel>
-            } />
-            <Route path="/aboutPage" element={
-                <TabPanel value="aboutPage">
-                    <AboutPage />
-                </TabPanel>
-            } />
-            <Route path="/messages/:userId" element={
-                <TabPanel value="messages">
-                    <AboutPage />
-                </TabPanel>
-            } />
-        </Routes>
+          <Routes>
+              <Route path="/" element={
+                  <TabPanel value="activities">
+                      <ActivitiesScreen setPath={setPath} setMessage={setMessage} setError={setError} message={message} error={error} />
+                  </TabPanel>
+              } />
+              <Route path="/saved" element={
+                  <TabPanel value="saved">
+                      <SavePage setMessage={setMessage} setError={setError} message={message} error={error} />
+                  </TabPanel>
+              } />
+              <Route path="/registration" element={
+                  <TabPanel value="registration">
+                      <RegistrationForm setMessage={setMessage} setError={setError} message={message} error={error} />
+                  </TabPanel>
+              } />
+              <Route path="/login" element={
+                  <TabPanel value="login">
+                      <Login setMessage={setMessage} setError={setError} message={message} error={error} />
+                  </TabPanel>
+              } />
+              <Route path="/profile" element={
+                  <TabPanel value="profile">
+                      <ProfilePage setEdit={setEdit} setPath={setPath} edit={edit} setMessage={setMessage} setError={setError} message={message} error={error} />
+                  </TabPanel>
+              } />
+              <Route path="/aboutPage" element={
+                  <TabPanel value="aboutPage">
+                      <AboutPage />
+                  </TabPanel>
+              } />
+              <Route path="/messages" element={
+                  <TabPanel value="messages">
+                      <MessagePage />
+                  </TabPanel>
+              } />
+          </Routes>
       </AnimatePresence>
         <TabPanel value={ FIREBASE_AUTH.currentUser ? "profile" : "registration"}>
           <AnimatePresence>
             <Routes>
               <Route path="/registration" element={<RegistrationForm setMessage={setMessage} setError={setError} message={message} error={error}/>} />
               <Route path="/login" element={<Login setMessage={setMessage} setError={setError} message={message} error={error}/>} />
-              <Route path='/profile' element={<ProfilePage setEdit={setEdit} setPath={setPath} edit={edit} setMessage={setMessage} setError={setError} message={message} error={error}/>} />
-              <Route path='/messages' element={<ProfilePage setEdit={setEdit} setPath={setPath} edit={edit} setMessage={setMessage} setError={setError} message={message} error={error}/>} />
               {/* Define more routes as needed */}
             </Routes>
           </AnimatePresence>
-        </TabPanel>
-        <TabPanel value="aboutPage">
-          <AboutPage/>
         </TabPanel>
       </TabContext>
     </Box>

@@ -191,8 +191,16 @@ i18n
                 //Saved Page 
                 noSavedPostsYet: "No Saved Posts Yet",
                 noSavedNoSignUp: "You are not Signed Up Yet",
-                savedPosts: "Saved Posts"
+                savedPosts: "Saved Posts", 
+                
+                //not found
+                noFound: "Page Not found 404",
+                sorryNotFound: "Sorry, we could not find your page", 
+                homepage:"Homepage",
+                pleaseGo: "Please go back to the homepage or contact us if you believe this page should exist"
+
             }
+           
 
         }, 
         de: {
@@ -364,7 +372,13 @@ i18n
                 //Saved Page 
                 noSavedPostsYet: "Du hast noch keine Posts gespeichert",
                 noSavedNoSignUp: "Du bist noch nicht eingeloggt",
-                savedPosts: "Gespeicherte Posts"
+                savedPosts: "Gespeicherte Posts",
+
+                //not found
+                noFound: "Die Wwebsite konnte nicht gefunden werden 404",
+                sorryNotFound: "Es tut uns leid, wir konnten die Website niocht finden", 
+                homepage:"Homepage",
+                pleaseGo: "Bitte gehen sie zurück zur Homepage"
             }
         }
     }

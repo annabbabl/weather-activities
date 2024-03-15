@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import multer, {  } from 'multer'
 import { FIREBASE_AUTH, FIRESTORE, FIRE_STORAGE } from '../firebase.config';
 import {  UserEdit } from '../databaseTypes';
-
+import * as fs from 'fs';
 
 const upload = multer({ dest: 'uploads/' }); 
 
@@ -20,38 +20,43 @@ const profileRouter = express.Router();
  * @param {express.Response} res Express response object.
  * @returns {void} Responds with success status and download URL of the uploaded picture, or an error message upon failure.
  */
-profileRouter.post('/uploadPicture', upload.single('file'), async (req: Request, res: Response) => {
-    const { file, body: { uid } } = req;
-  
-    if (!file) {
-      return res.status(400).json({ success: false, message: "No file uploaded" });
-    }
-  
-    try {
-      const bucket = FIRE_STORAGE.bucket(); 
-      const storageRef = bucket.file(file.originalname); 
-  
-      await storageRef.save(file.buffer, {
-        contentType: file.mimetype,
-      });
-  
-      const downloadURL = await storageRef.getSignedUrl({
-        action: 'read',
-        expires: '03-09-2491'
-      });
-  
-      const userRef = FIRESTORE.collection('users').doc(uid);
-      await userRef.update({ profilePicture: downloadURL[0] });
-  
-      await FIREBASE_AUTH.updateUser(uid, { photoURL: downloadURL[0] });
-  
-      res.json({ success: true, message: "File uploaded successfully", downloadURL: downloadURL[0] });
-    } catch (error: any) {
-      console.error('Error uploading file:', error);
+profileRouter.post('/uploadPicture', upload.single('file'), async (req, res) => {
+  const { file } = req;
+  const { uid } = req.body;
+
+  if (!file || !uid) {
+      return res.status(400).json({ success: false, message: "No file uploaded or UID missing" });
+  }
+
+  try { 
+      const storageRef = FIRE_STORAGE.file(file.originalname); 
+
+      fs.createReadStream(file.path)
+          .pipe(storageRef.createWriteStream({
+              metadata: {
+                  contentType: file.mimetype,
+              },
+          }))
+          .on('error', (error: any) => {
+              console.error('Error uploading file:', error);
+              res.status(500).json({ success: false, message: error.message });
+          })
+          .on('finish', async () => {
+              const downloadURL = await storageRef.getSignedUrl({
+                  action: 'read',
+                  expires: '03-09-2491' 
+              });
+              const userRef = FIRESTORE.collection('users').doc(uid);
+              await userRef.update({ profilePicture: downloadURL[0] });
+              await FIREBASE_AUTH.updateUser(uid, { photoURL: downloadURL[0] });
+
+              res.json({ success: true, message: "File uploaded successfully", downloadURL: downloadURL[0] });
+          });
+  } catch (error: any) {
+      console.error('Error processing file:', error);
       res.status(500).json({ success: false, message: error.message });
-    }
-  });
-  
+  }
+});
   /**
  * Updates user profile information in Firestore and Firebase Auth based on provided details.
  * 

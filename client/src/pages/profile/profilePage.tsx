@@ -4,7 +4,6 @@ import Avatar from '@mui/material/Avatar';
 import { useTranslation } from 'react-i18next';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import { ReactSVG } from 'react-svg';
 import { signOut, updateProfile } from "firebase/auth";
 import { StandartBlueWave } from '../../components/shared/waves';
 import { AuthProps } from '../../types/component.props';
@@ -16,6 +15,9 @@ import Loading from '../../components/shared/loadingScreen';
 import { PostEdit } from '../../types/databaseTypes';
 import {FIREBASE_AUTH, FIRESTORE} from "../../firebase.config"
 import { collection, doc, getDocs, query, where } from 'firebase/firestore';
+import FlipMove from 'react-flip-move';
+import PostComponent from '../../components/shared/postComponent';
+import { IMAGES, IMAGE_STYLE_CONTAIN } from '../../constants/theme';
 
 
 /**
@@ -72,42 +74,6 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
   const [imgUrl, setImgUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
-
-
-  useEffect(() => {
-    const fetchUserData = async () => {      
-      try {
-          setLoading(true);
-          const userCollectionRef = collection(FIRESTORE, "users");
-          const userDoc = doc(userCollectionRef, currentUser?.uid);
-  
-          if (userDoc) {
-            setImgUrl(currentUser?.photoURL ? currentUser?.photoURL : "");
-          } else {
-            console.log("No user Data");
-          }
-
-          const postCollectionRef = collection(FIRESTORE, "postCollection");
-          const q = query(postCollectionRef, where("createdBy", "==", currentUser?.uid));
-          const postDocSnapshot = await getDocs(q);
-
-          if (!postDocSnapshot.empty) {
-            const weatherDataArray = postDocSnapshot.docs.map(doc => doc.data());
-            setPosts(weatherDataArray);
-        } else {
-            console.log("No posts for user");
-        }
-
-      } catch (error) {
-          console.error('Error fetching user data:', error);
-      } finally {
-         setLoading(false);
-      }
-    };
-    fetchUserData()
-  }, [currentUser?.photoURL, currentUser?.uid]);
-
-
   const handleLogout = async () => {
     if (!currentUser?.uid) {
       return;
@@ -154,6 +120,8 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
         formData.append('file', file);
         formData.append('uid', currentUser.uid);
 
+        console.log(file, currentUser.uid);
+
         const response = await fetch('http://localhost:3001/profile/uploadPicture', {
             method: 'POST',
             body: formData,
@@ -161,16 +129,17 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
 
         if (!response.ok) throw new Error('File upload failed');
 
+        const { downloadURL } = await response.json(); // This is correct
+
         if (currentUser) {
-          updateProfile(currentUser, { photoURL: imgUrl })
-            .then(async () => {
-              const { downloadURL } = await response.json();
-              setImgUrl(downloadURL);
+          updateProfile(currentUser, { photoURL: downloadURL }) // Use the fetched URL
+            .then(() => {
+              setImgUrl(downloadURL); // Update imgUrl after successful profile update
               setMessage?.('File uploaded successfully');
               setError?.(false);
             })
             .catch((error: any) => {
-              console.log(error)
+              console.error(error);
             });
         }
     } catch (error) {
@@ -180,8 +149,43 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
     } finally {
         setLoading(false);
     }
-};
+  }
 
+
+  useEffect(() => {
+    const fetchUserData = async () => {      
+      try {
+          setLoading(true);
+          const userCollectionRef = collection(FIRESTORE, "users");
+          const userDoc = doc(userCollectionRef, currentUser?.uid);
+  
+          if (userDoc) {
+            setImgUrl(currentUser?.photoURL ? currentUser?.photoURL : "");
+          } else {
+            console.log("No user Data");
+          }
+
+          const postCollectionRef = collection(FIRESTORE, "posts");
+          const q = query(postCollectionRef, where("createdBy", "==", currentUser?.uid));
+
+          const postDocSnapshot = await getDocs(q);
+
+          if (!postDocSnapshot.empty) {
+            const weatherDataArray = postDocSnapshot.docs.map(doc => doc.data());
+            setPosts(weatherDataArray);
+        } else {
+            console.log("No posts for user");
+        }
+
+      } catch (error) {
+          console.error('Error fetching user data:', error);
+      } finally {
+         setLoading(false);
+      }
+    };
+    fetchUserData()
+  }, [currentUser?.photoURL, currentUser?.uid]);
+  
 
   return (
     <div className="flex flex-col justify-between items-center h-screen ">
@@ -205,7 +209,7 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
                     </FileUpload>
                   </div>
                 </div>
-                <div>
+                <div style={{...IMAGE_STYLE_CONTAIN, backgroundImage: `url(${IMAGES.sun})`}}>
                   <div className='shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] border-4 border-blue-700'>
                     <div className='flex flex-row justify-evenly mt-5'>
                       <Typography variant="h4" placeholder={t('username')}>{t('username')}</Typography>
@@ -227,20 +231,27 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
                       {t('signOut')}
                     </Button>
                   </div>
-                  
+                </div>
                   {posts && posts.length > 0 ? (
-                    <div className='my-16 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] '>
-                      <Typography variant="h4" placeholder={t('yourPosts')}>{t('yourPosts')}</Typography>
-                      <Box sx={{ width: '100%', typography: 'body1' }}>
-                        {posts.map((post: PostEdit) => (
-                          <Typography key={post.id} variant="h4" placeholder={t('post')}>{post.title}</Typography>
-                        ))}
-                      </Box>
+                    <div >
+                      <Typography variant="h4" placeholder={t('yourPosts')} style={{marginBottom: "10%"}}>{t('yourPosts')}</Typography>
+                      <FlipMove duration={750} easing="ease-out">
+                            {posts.map((post) => (
+                                <PostComponent 
+                                  key={post.id}
+                                  post={post}
+                                  setError={setError}
+                                  setMessage={setMessage}
+                                  setLoading={setLoading}
+                                  currentUser={currentUser}
+                                  postLikes={post.likes ?? {}}                          />
+                              ))}
+                        </FlipMove>
                     </div>
                   ) : (
                     <Typography variant="h4" placeholder={t('noPostsYet')}>{t('noPostsYet')}</Typography>
                   )}
-                </div>
+                
               </div>
             ) : (
               <EditProfile
@@ -255,9 +266,11 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
               />
             )}
           </Box>
-        </div><SetAlert error={error} message={(message ? message : "")} /><ReactSVG src="../../assets/Sun.svg" /><div className="flex justify-end w-screen h-80">
-            <StandartBlueWave />
-          </div></>):(
+        </div>
+        <SetAlert error={error} message={(message ? message : "")} />
+        <div className="flex justify-end w-screen h-80">
+          <StandartBlueWave />
+        </div></>):(
         <Loading/>
       )}
   </div>

@@ -6,11 +6,13 @@ import '../constants/i18next'
 import { useTranslation } from "react-i18next";
 import { StandartBlueWave } from "../components/shared/waves";
 import { ParallaxProvider, useParallax } from 'react-scroll-parallax';
+import { IMAGES, IMAGE_STYLE_CONTAIN } from "../constants/theme";
 
 interface ComponentProps {
     text:string
     startPos: number
-    endPos: number
+    endPos: number, 
+    image: string
 }
 
 
@@ -28,13 +30,13 @@ interface ComponentProps {
  * @example
  * <Component text="Hello, world!" startPos={-20} endPos={20} />
  */
-function Component({ text, startPos, endPos }: ComponentProps): JSX.Element {
+function Component({ text, startPos, endPos, image }: ComponentProps): JSX.Element {
     const parallax = useParallax<HTMLDivElement>({
       easing: 'easeOutQuad',
       translateX: [startPos, endPos],
     });
     return (
-        <div ref={parallax.ref} className="w-5/6 text-left mt-48 ">
+        <div ref={parallax.ref} className="w-5/6 text-left mt-48" style={{...IMAGE_STYLE_CONTAIN, backgroundImage: `url(${image})`}}>
             <Typography variant="paragraph" className="text-blue-700 text-5xl" placeholder="description" textGradient >
                 {text}
             </Typography>
@@ -58,14 +60,14 @@ export default function AboutPage() {
     const { t } = useTranslation();
 
     return (
-        <div className='mt-12 mb-5 w-5/6 flex flex-col items-center '>
-            <Typography  className="text-blue-700 text-8xl font-extrabold" placeholder={t('username')}>
-                    {t('about')}
+        <><img src={IMAGES.icon} alt="Icon" /><div className='mt-12 mb-5 w-5/6 flex flex-col items-center'>
+            <Typography className="text-blue-700 text-8xl font-extrabold" placeholder={t('username')}>
+                {t('about')}
             </Typography>
-            <ParallaxProvider >    
-                <Component text={t('infoText')} startPos={-20} endPos={15} />
-                <Component text={t('aboutMeText')} startPos={0} endPos={30}/>
+            <ParallaxProvider>
+                <Component text={t('infoText')} startPos={-20} endPos={15} image={IMAGES.sun} />
+                <Component text={t('aboutMeText')} startPos={0} endPos={30} image={IMAGES.cloud} />
             </ParallaxProvider>
-        </div>
+        </div></>
     );
 }
