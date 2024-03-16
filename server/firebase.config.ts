@@ -1,4 +1,3 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import * as admin from "firebase-admin";
 import serviceAccount from "./adminFirebase.json";
@@ -8,14 +7,14 @@ import { getStorage } from 'firebase-admin/storage';
 //Firebase Credentials and definition
 
 const firebaseConfig = {
-  apiKey: process.env.FIREBASE_APIKEY ,
-  authDomain: process.env.FIREBASE_AUTHDOMAIN,
-  projectId: process.env.FIREBASE_PROJECTID,
-  databaseURL: process.env.FIREBASE_DATABAASE_URL,
-  messagingSenderId: process.env.FIREBASE_MESSAGINSENDERID,
-  appId:  process.env.FIREBASE_APPID,
-  measurementId:  process.env.FIREBASE_MEASERMENTID,
-  storageBucket:  process.env.FIREBASE_STORAGEBUCKET
+  apiKey: "AIzaSyApdmGFx3XrJdY9r9bLyMXtAQmzGVGoPvg",
+  authDomain: "weatherapp-1243f.firebaseapp.com",
+  projectId: "weatherapp-1243f",
+  databaseURL: "https://weatherapp-1243f-default-rtdb.europe-west1.firebasedatabase.app",
+  messagingSenderId: "673457310800",
+  appId:  "1:673457310800:web:c9a5fe1ec0a206ec61d555",
+  measurementId:  "G-HSLWL2VHF0",
+  storageBucket:  "weatherapp-1243f.appspot.com"
 };
 
 export const FIRE_ADMIN = admin.initializeApp({

@@ -23,7 +23,7 @@ import { Timestamp } from "firebase/firestore";
  */
 
 export default async function weatherFetching(latitude: string, longitude: string): Promise<any> {
-    const WEATHER_URL = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=current,hourly,minutely,alerts&units=metric&appid=${process.env.WEATHERAPI_KEY}`;
+    const WEATHER_URL = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=current,hourly,minutely,alerts&units=metric&appid=92c03da4015b2366672cea996f36767f`;
 
     const getNextSevenDays = () =>  {
         const days: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
