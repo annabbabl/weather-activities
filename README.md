@@ -3,7 +3,7 @@
 **Weather Activities** is a web application developed using the React framework. The primary goal of this project is to offer a platform enabling users to receive, rate, and publish suggestions for activities 🌤️. These suggestions are specifically tailored to factors such as city, date, weekday, and weather conditions 🌆. By fostering dynamic interaction, the platform aims to encourage user exchange and collect a wide array of ideas for both outdoor and indoor activities 🏞️🏠.
 
 
-![Local Image](./client/src/assets/Icon%20Grid%20Templates%20(1)%20(1).png)
+![Local Image](./client/public/icon.svg)
 # 🌟 Features
 
 Weather Activities offers the following features:
@@ -31,6 +31,13 @@ By integrating live weather data with a diverse collection of activity suggestio
 Explain how to install your project, e.g.:
 
 ```bash
-git clone https://yourproject.git
-cd yourproject
-npm install
+git clone https://github.com/annabbabl/weather-activities.git
+cd weather-activities
+chmod +x ./startScipt.sh
+./startScipt.sh
+```
+
+***Start*** by logging in either with a new account or by using the following credentials: 
+
+- **Email**: user@example.com
+- **Password**: password123456
