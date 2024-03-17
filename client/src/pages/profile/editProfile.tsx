@@ -30,7 +30,6 @@ import {FIREBASE_AUTH} from "../../firebase.config"
  *   username="johndoe"
  *   password="password123"
  *   email="john.doe@example.com"
- *   imgUrl="http://example.com/avatar.jpg"
  *   setEmail={setEmail}
  *   setPassword={setPassword}
  *   setUsername={setUsername}

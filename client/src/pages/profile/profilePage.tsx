@@ -1,14 +1,12 @@
 import Box from '@mui/material/Box';
 import { Button, Typography } from "@material-tailwind/react";
-import Avatar from '@mui/material/Avatar';
 import { useTranslation } from 'react-i18next';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import { signOut, updateProfile } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { StandartBlueWave } from '../../components/shared/waves';
 import { AuthProps } from '../../types/component.props';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
-import { Button as FileUpload, styled } from '@mui/material';
+import { styled } from '@mui/material';
 import { SetAlert } from '../../constants/popUps';
 import { EditProfile } from './editProfile';
 import Loading from '../../components/shared/loadingScreen';
@@ -22,8 +20,8 @@ import { IMAGES, IMAGE_STYLE_CONTAIN } from '../../constants/theme';
 
 /**
  * Functional React component for user's profile page.
- * This component displays the user's profile information such as avatar, username, and email.
- * It provides functionality to edit the profile, upload a new avatar, and log out.
+ * This component displays the user's profile information such as username, and email.
+ * It provides functionality to edit the profile and log out.
  * The page also lists the user's posts if available and handles loading states and error messages.
  *
  * @component
@@ -109,49 +107,6 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
     setError?.(true); 
   }
 
-  const handlePictureUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !currentUser) return;
-
-    try {
-        setLoading(true);
-
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('uid', currentUser.uid);
-
-        console.log(file, currentUser.uid);
-
-        const response = await fetch('http://localhost:3001/profile/uploadPicture', {
-            method: 'POST',
-            body: formData,
-        });
-
-        if (!response.ok) throw new Error('File upload failed');
-
-        const { downloadURL } = await response.json(); // This is correct
-
-        if (currentUser) {
-          updateProfile(currentUser, { photoURL: downloadURL }) // Use the fetched URL
-            .then(() => {
-              setImgUrl(downloadURL); // Update imgUrl after successful profile update
-              setMessage?.('File uploaded successfully');
-              setError?.(false);
-            })
-            .catch((error: any) => {
-              console.error(error);
-            });
-        }
-    } catch (error) {
-        console.error('Error uploading file:', error);
-        setMessage?.('Error uploading file');
-        setError?.(true);
-    } finally {
-        setLoading(false);
-    }
-  }
-
-
   useEffect(() => {
     const fetchUserData = async () => {      
       try {
@@ -196,18 +151,7 @@ export default function ProfilePage({ edit, setError, setMessage, message, setEd
               <div className="mt-8 mb-19 w-80 max-w-screen-lg sm:w-96 ">
                 <Typography className='mb-10' variant="h1" placeholder={t('profile')}>{t('profile')}</Typography>
                 <div className="flex mb-9 ">
-                  {currentUser?.photoURL ? (
-                    <Avatar src={imgUrl} alt={(username ? username : "")} sx={{ width: 120, height: 120 }} />
-                  ) : (
-                    <Avatar alt={(username ? username : "")} sx={{ width: 120, height: 120 }}>{(username ? username[0] : "U")} </Avatar>
-                  )}
-                  <div className='flex flex-col justify-end mx-4'>
-                    <Typography variant="h4" placeholder={username}>{username}</Typography>
-                    <FileUpload component="label" variant="text" startIcon={<FileUploadIcon />}>
-                      {t('upload')}
-                      <VisuallyHiddenInput type="file" onChange={handlePictureUpload} />
-                    </FileUpload>
-                  </div>
+                 
                 </div>
                 <div style={{...IMAGE_STYLE_CONTAIN, backgroundImage: `url(${IMAGES.sun})`}}>
                   <div className='shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px] border-4 border-blue-700'>

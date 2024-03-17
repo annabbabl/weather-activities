@@ -5,7 +5,6 @@ import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
-import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -212,16 +211,7 @@ const PostComponent = forwardRef<HTMLDivElement, PostComponentProps>(({
   return (
     <Card sx={{ maxWidth: 800, marginTop: 3, minWidth: 400}} ref={ref}>
         <CardHeader
-            avatar={
-                post.userImage ? (
-                    <Avatar aria-label={t('profilePicture')} src={post.userImage}/>
-                ) : (
-                    <Avatar sx={{ bgcolor: GOOD_WEATHER_COLORS.thirdColor }} aria-label={t('profilePicture')}>
-                      {(post.username && post.username.length > 0) ? post.username[0].toUpperCase() : "U"}
-                    </Avatar>
-                )
-            }
-            subheader={t("createdOn")+ formattedDate.toString()}
+          subheader={t("createdOn")+ formattedDate.toString()}
         />
       {post.img && ( 
         <CardMedia
