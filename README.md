@@ -2,8 +2,8 @@
 
 **Weather Activities** is a web application developed using the React framework. The primary goal of this project is to offer a platform enabling users to receive, rate, and publish suggestions for activities 🌤️. These suggestions are specifically tailored to factors such as city, date, weekday, and weather conditions 🌆. By fostering dynamic interaction, the platform aims to encourage user exchange and collect a wide array of ideas for both outdoor and indoor activities 🏞️🏠.
 
-
 ![Local Image](./client/public/icon.svg)
+
 # 🌟 Features
 
 Weather Activities offers the following features:
@@ -18,17 +18,16 @@ Weather Activities offers the following features:
 
 - **Interactive User Experience**: Leveraging the React framework, "Weather Activities" provides a dynamic and responsive user interface for an engaging user experience 💻.
 
-
 - **User Profiles**: Users can create their own profiles, allowing them to save their favorite activities and view their history of interactions on the platform 🙍‍♂️🙍‍♀️.
 
 - **Messages**: The User has the ability to message another user about their post and keep track of their chats with outher users Speech bubble.
-
 
 By integrating live weather data with a diverse collection of activity suggestions, "Weather Activities" aims to inspire users to make the most of their time, regardless of the weather 🌈.
 
 ## Installation
 
-Explain how to install your project, e.g.:
+In order for Weather Activities to work as intendet, enable geolocation in your browser.
+Install the script as follows:
 
 ```bash
 git clone https://github.com/annabbabl/weather-activities.git
@@ -36,8 +35,10 @@ cd weather-activities
 chmod +x ./startScipt.sh
 ./startScipt.sh
 ```
+If the installation of the npm packages does not work, please use **sudo** on Mac and **Powershell** on Windows. 
 
-***Start*** by logging in either with a new account or by using the following credentials: 
 
-- **Email**: user@example.com
+***Start*** by logging in either with a new account or by using the following credentials:
+
+- **Email**: <user@example.com>
 - **Password**: password123456
