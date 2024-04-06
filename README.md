@@ -1,10 +1,12 @@
-# 📖 Project Description
+# Weather Activities
+
+## 📖 Project Description
 
 **Weather Activities** is a web application developed using the React framework. The primary goal of this project is to offer a platform enabling users to receive, rate, and publish suggestions for activities 🌤️. These suggestions are specifically tailored to factors such as city, date, weekday, and weather conditions 🌆. By fostering dynamic interaction, the platform aims to encourage user exchange and collect a wide array of ideas for both outdoor and indoor activities 🏞️🏠.
 
 ![Local Image](./client/public/logo.svg)
 
-# 🌟 Features
+## 🌟 Features
 
 Weather Activities offers the following features:
 
