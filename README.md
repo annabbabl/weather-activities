@@ -45,3 +45,5 @@ If the installation of the npm packages does not work, please use **sudo** on Ma
 - **Email**: <user@example.com>
 - **Username**: exampleUser
 - **Password**: password123456
+
+If you are currently located in Berlin, there are gonna be posts for every day of the week. Anywhere else in the world, no posts have been publicised (except for one in Bad Friedrichshall).
