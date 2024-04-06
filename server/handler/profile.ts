@@ -1,8 +1,7 @@
 import express, { Request, Response } from 'express';
 import multer, {  } from 'multer'
-import { FIREBASE_AUTH, FIRESTORE, FIRE_STORAGE } from '../firebase.config';
-import {  UserEdit } from '../databaseTypes';
-import * as fs from 'fs';
+import { FIREBASE_AUTH, FIRESTORE } from '../firebase.config';
+import { UserEdit } from '../utils/databaseTypes';
 
 const upload = multer({ dest: 'uploads/' }); 
 

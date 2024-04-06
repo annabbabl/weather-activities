@@ -1,5 +1,5 @@
 import { User } from "firebase/auth"
-
+import { Timestamp } from "firebase-admin/firestore"; 
 
 //custom type definitions
 
@@ -23,18 +23,20 @@ type  Likes = {
 }
 
 type Weather = {
+    formattedDate? : string | undefined, 
     weather?: any,
-    temp?: any |undefined, 
+    temp?: any | undefined, 
     pressure?: float| number | undefined, 
     humidity?: float| number | undefined, 
     wind_speed?: float| number | undefined, 
     wind_deg?: float | number | undefined, 
     clouds?: float | number | undefined, 
     rain?: float | number | undefined, 
-    startDate? : any, 
-    endDate? : any, 
-    day?: string, 
-    date? : Date
+    startDate? : any |  Timestamp, 
+    endDate? : any |  Timestamp , 
+    day?: string | undefined, 
+    date? : Timestamp | undefined
+    feels_like? : any | undefined
 }
 
 type PostEdit = {

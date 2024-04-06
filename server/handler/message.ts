@@ -2,6 +2,7 @@ import express from 'express';
 import { StreamChat } from 'stream-chat'; // Import the Stream Chat server SDK
 import { FIREBASE_AUTH } from '../firebase.config';
 
+
 const messagesRouter = express.Router();
 const streamClient = new StreamChat("4mfkcgqvz3ym", "szx7p6att4k8ewhcdau3n69eramv8g7g2up5bkr9b3y75p8peertpjj4tt3gtd6s");
 

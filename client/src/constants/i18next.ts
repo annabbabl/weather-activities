@@ -180,7 +180,7 @@ i18n
                 information: "Information",
                 infomration : "Information",
                 description: "Description",
-                createdOn: "Created On",
+                createdOn: "Created on",
                 messages:"Messages",
 
 

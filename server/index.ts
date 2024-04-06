@@ -3,10 +3,10 @@ import path from 'path';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import { indexRouter } from './routes';
 import { registrationRouter } from './handler/registration';
 import { profileRouter } from './handler/profile';
 import { messagesRouter } from './handler/message';
+import { indexRouter } from './handler/indexHandler';
 
 dotenv.config();
 

@@ -111,8 +111,7 @@ export default function ActivitiesScreen({setPath, setMessage, setError, message
             }
     
             const data = await response.json();
-            const city = data.address.city;
-            console.log(city, "Fetched City");
+            const city = data.address.city || data.address.town;
             setCity(city);
     
             const parsedData = currentUser ? {
@@ -230,7 +229,6 @@ export default function ActivitiesScreen({setPath, setMessage, setError, message
     useEffect(() => {
         const fetchWeatherData = async () => {
             if (!city) return; 
-            
             try {
                 setLoading(true);
                 const weatherCollectionRef = collection(FIRESTORE, "weatherInformation");
@@ -249,7 +247,6 @@ export default function ActivitiesScreen({setPath, setMessage, setError, message
                 setLoading(false);
             }
         };
-    
         fetchWeatherData();
     }, [city]);
 
@@ -332,9 +329,6 @@ export default function ActivitiesScreen({setPath, setMessage, setError, message
         }
     }, [currentWeatherData]);
 
-    
-
-   
     return (
         <div className='flex flex-col w-full  mt-10  justify-center items-center'>
             <div className='flex flex-col w-full items-center  justify-center' style={{...IMAGE_STYLE_COVER, backgroundImage: `url(${imageUrl})`}}>
@@ -378,7 +372,7 @@ export default function ActivitiesScreen({setPath, setMessage, setError, message
                                     <div className='flex flex-row justify-between sticky top-0 z-10 p-5'>
                                         <div className="me-2 flex flex-row items-center">
                                             <Typography variant="h6" placeholder={t('infomration')}>
-                                                {`${city}, ${currentWeatherData?.date ? currentWeatherData.date.toString().replace(/-/g, '.') : ""}`}
+                                                {`${city}, ${currentWeatherData?.formattedDate ? currentWeatherData.formattedDate: ""}`}
                                             </Typography>
                                             <LocationOn fontSize='small'/>
                                         </div>

@@ -2,7 +2,7 @@
 
 **Weather Activities** is a web application developed using the React framework. The primary goal of this project is to offer a platform enabling users to receive, rate, and publish suggestions for activities 🌤️. These suggestions are specifically tailored to factors such as city, date, weekday, and weather conditions 🌆. By fostering dynamic interaction, the platform aims to encourage user exchange and collect a wide array of ideas for both outdoor and indoor activities 🏞️🏠.
 
-![Local Image](./client/public/icon.svg)
+![Local Image](./client/public/logo.svg)
 
 # 🌟 Features
 
@@ -35,10 +35,11 @@ cd weather-activities
 chmod +x ./startScipt.sh
 ./startScipt.sh
 ```
-If the installation of the npm packages does not work, please use **sudo** on Mac and **Powershell** on Windows. 
 
+If the installation of the npm packages does not work, please use **sudo** on Mac and **Powershell** on Windows.
 
 ***Start*** by logging in either with a new account or by using the following credentials:
 
 - **Email**: <user@example.com>
+- **Username**: exampleUser
 - **Password**: password123456

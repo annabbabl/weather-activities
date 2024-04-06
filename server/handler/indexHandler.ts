@@ -1,14 +1,20 @@
 import express, { Request, Response } from 'express';
-import multer, {  } from 'multer'
-import { FIREBASE_AUTH, FIRESTORE } from '../firebase.config';
-import weatherFetching from '../weatherAPI';
-import { PostEdit } from '../databaseTypes';
 import { pickBy } from 'lodash'
+import { Timestamp } from 'firebase-admin/firestore'
+import { FIREBASE_AUTH, FIRESTORE } from '../firebase.config';
+import { PostEdit } from '../utils/databaseTypes';
+import weatherFetching from '../utils/weatherAPI';
 
 
+export const indexRouter = express.Router();
 
-const indexRouter = express.Router();
-
+/**
+ * Updates user login status based on Firebase authentication token.
+ * @route PATCH /login
+ * @param {Request} req Express request object, expects idToken in body.
+ * @param {Response} res Express response object.
+ * @returns Responds with user UID and success message upon successful login status update.
+ */
 indexRouter.patch('/login', async (req: Request, res: Response) => {
     const { idToken } = req.body;
   
@@ -37,14 +43,25 @@ indexRouter.patch('/login', async (req: Request, res: Response) => {
       res.status(400).json({ success: false, message: error.message });
     }
 });
-/*
-  We client sends out a idToken, if the user is logged in, the city, which it fetches from LocationiQ and 
-  the longitude and latitude, which it got from the js navigator.geolocation. 
-  We check if the user city needs to be updated, if so, we update it. 
-  After that we check, if the city is already in our database, if not, we set the weatherdata in our weathercollection. We fetched the weatherdata from OpenWeatherMap in weatherAPI.ts. 
-  If we have information about the weather in the city, we look, if this information is from the previous day, if so, the information gets updated, if not, we do nothing. 
-  Also we check if the date post were written for, are in the past, if so, we delete them. Since in firebase you can not compare dates properly, i decide to implement the logic just for the last past date
-*/
+
+
+/**
+ * Sets the location of the user and updates weather information accordingly.
+ * This endpoint allows updating the user's city and managing associated weather data, 
+ * including removal of outdated weather information and posts.
+ * @route POST /setLocation
+ * @param {Request} req Express request object, expects idToken, city, longitude, latitude in body.
+ * @param {Response} res Express response object.
+ * @returns Responds with success message and status upon successful location and weather update.
+ *//**
+ * Sets the location of the user and updates weather information accordingly.
+ * This endpoint allows updating the user's city and managing associated weather data, 
+ * including removal of outdated weather information and posts.
+ * @route POST /setLocation
+ * @param {Request} req Express request object, expects idToken, city, longitude, latitude in body.
+ * @param {Response} res Express response object.
+ * @returns Responds with success message and status upon successful location and weather update.
+ */
 indexRouter.post('/setLocation', async (req, res) => {
   const { idToken, city, longitude, latitude } = req.body;
 
@@ -63,15 +80,13 @@ indexRouter.post('/setLocation', async (req, res) => {
 
       const weatherCollectionRef = FIRESTORE.collection("weatherInformation");
       const currentDate = new Date();
-
-      const formattedCurrentDate = [
-        ('0' + currentDate.getDate()).slice(-2),
-        ('0' + (currentDate.getMonth() + 1)).slice(-2),
-        currentDate.getFullYear() 
-      ].join('-');
-
-
       currentDate.setHours(0, 0, 0, 0);
+
+      const endDate = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000); 
+      
+      const currentTimestamp = Timestamp.fromDate(currentDate);
+      const endTimestamp = Timestamp.fromDate(endDate);  
+
 
       const cityWeatherSnapshot = await weatherCollectionRef
         .where("city", "==",city)
@@ -83,7 +98,7 @@ indexRouter.post('/setLocation', async (req, res) => {
 
           const oldWeatherSnapshot = await weatherCollectionRef
             .where("city", "==",city)
-            .where("creationDate", "==", formattedCurrentDate)
+            .where("endDate", "<", currentTimestamp)
             .get();
 
           if (!oldWeatherSnapshot.empty) {
@@ -105,7 +120,8 @@ indexRouter.post('/setLocation', async (req, res) => {
                   batch.set(doc.ref, {
                     ...dayWeather,
                     city,
-                    creationDate: formattedCurrentDate,
+                    startDate: currentTimestamp,
+                    endDate: endTimestamp,
                   });
                 });
               }
@@ -117,23 +133,16 @@ indexRouter.post('/setLocation', async (req, res) => {
           weather.forEach((dayWeather: any) => {
             const newWeatherDocumentRef = weatherCollectionRef.doc(); // Create a new document reference for each day
             dayWeather.city = city;
-            dayWeather.creationDate = formattedCurrentDate;
+            dayWeather.creationDate = currentTimestamp;
+            dayWeather.endDate =  endTimestamp; 
             batch.set(newWeatherDocumentRef, dayWeather);
         });
       }
       await batch.commit();
 
       const postsCollectionRef = FIRESTORE.collection("posts");
-      const pastDay = new Date(currentDate); 
-      pastDay.setDate(pastDay.getDate() - 1)      
 
-      const formattedPastDate = [
-        ('0' + pastDay.getDate()).slice(-2),
-        ('0' + (pastDay.getMonth() + 1)).slice(-2),
-        pastDay.getFullYear() 
-      ].join('-');
-
-      const oldPostsSnapshot = await postsCollectionRef.where("createdFor", "==",formattedPastDate).get();
+      const oldPostsSnapshot = await postsCollectionRef.where("endDate", "<",currentDate).get();
       
       const userCollectionRef = FIRESTORE.collection("users");
 
@@ -158,7 +167,6 @@ indexRouter.post('/setLocation', async (req, res) => {
               userBatch.update(userDocRef, { savedPosts: updatedSavedPosts }); 
             });
 
-            // Commit the user updates
             await userBatch.commit();
         }
       }
@@ -169,6 +177,14 @@ indexRouter.post('/setLocation', async (req, res) => {
   }
 });
 
+
+/**
+ * Updates the like count of a post based on user interactions.
+ * @route PATCH /likePost
+ * @param {Request} req Express request object, expects id, amount, likedUser in body.
+ * @param {Response} res Express response object.
+ * @returns Responds with updated like data and success message upon successful update.
+ */
 indexRouter.patch('/likePost', async (req: Request, res: Response) => {
   const { id, amount, likedUser } = req.body;
 
@@ -216,23 +232,31 @@ indexRouter.patch('/savePost', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * Uploads a new post to the database with given user and post details.
+ * @route POST /uploadPost
+ * @param {Request} req Express request object, expects post details like id, content, createdBy, etc., in body.
+ * @param {Response} res Express response object.
+ * @returns Responds with success message and post details upon successful upload.
+ */
 
 indexRouter.post('/uploadPost', async (req: Request, res: Response) => {
-  const { id, content, createdBy, createdFor, city, weather, username, userImage, likes, userId } = req.body;
+  const { id, content, createdBy, endDate, userId, createdFor, cretaedOn,  city, weather, username, userImage, likes, sendImg } = req.body;
 
   try {
     const post: PostEdit = {
       content, 
       createdBy, 
-      createdFor, 
+      createdFor,
+      cretaedOn, 
+      endDate,  
       city, 
       weather,
+      userId,
       username: username || "", 
-      userId: userId, 
       userImage: userImage || "",
       likes: likes || { amount: 0, likedUser: [] } // Default like structure if not provided
     };
-    console.log(userId)
 
     const cleanedObject = pickBy(post, v => v !== undefined); // Clean object for undefined values
 
@@ -257,6 +281,4 @@ indexRouter.post('/uploadPost', async (req: Request, res: Response) => {
   }
 });
 
-export { 
-  indexRouter
-};
+

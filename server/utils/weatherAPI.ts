@@ -1,4 +1,3 @@
-import { Timestamp } from "firebase/firestore";
 
 
 /**
@@ -22,6 +21,9 @@ import { Timestamp } from "firebase/firestore";
  * @throws {Error} Throws an error if the weather data could not be fetched or processed.
  */
 
+import { Timestamp } from "firebase-admin/firestore"; 
+import { Weather } from "./databaseTypes";
+
 export default async function weatherFetching(latitude: string, longitude: string): Promise<any> {
     const WEATHER_URL = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=current,hourly,minutely,alerts&units=metric&appid=92c03da4015b2366672cea996f36767f`;
 
@@ -39,13 +41,13 @@ export default async function weatherFetching(latitude: string, longitude: strin
     }
 
     const getNextSevenDates = () => {
-        const nextSevenDates: Timestamp[] = []; // Change to use Firestore Timestamp
+        const nextSevenDates: any[] = []; 
 
         for (let i = 0; i < 7; i++) {
-            const nextDay = new Date(); // Get today's date
-            nextDay.setDate(nextDay.getDate() + i); // Set to next day in the loop
-            nextDay.setHours(0, 0, 0, 0); // Reset time to 00:00:00 for consistency
-            nextSevenDates.push(Timestamp.fromDate(nextDay)); // Convert to Firestore Timestamp
+            const nextDay = new Date(); 
+            nextDay.setDate(nextDay.getDate() + i); 
+            nextDay.setHours(0, 0, 0, 0); 
+            nextSevenDates.push(nextDay); 
         }
 
         return nextSevenDates;
@@ -63,31 +65,26 @@ export default async function weatherFetching(latitude: string, longitude: strin
         const weather = await response.json();
         const daily = weather.daily;
 
-        const formattedData = daily.slice(0, 7).map((day: any, index: number) => {
-            const formattedDay: any = {};
+        const formattedData: Array<Weather> = daily.slice(0, 7).map((day: any, index: number) => {
+            const formattedDay: Weather = {};
+            const timestamp = Timestamp.fromDate(nextSevenDates[index]); 
 
-            if (day.temp) {
-                formattedDay.temp = day.temp;
-            }
-
-            const timestamp = nextSevenDates[index]; // Get Firestore Timestamp
-            formattedDay.date = timestamp;
-
-            // Assign other day properties as before
-            formattedDay.feels_like = day.feels_like;
-            formattedDay.pressure = day.pressure;
-            formattedDay.humidity = day.humidity;
-            formattedDay.wind_speed = day.wind_speed;
-            formattedDay.wind_deg = day.wind_deg;
-            formattedDay.weather = day.weather;
-            formattedDay.clouds = day.clouds;
-            formattedDay.rain = day.rain;
-            formattedDay.day = nextSevenDays[index]; // Day of the week
-            formattedDay.creationDate = timestamp; // Store as Firestore Timestamp
+            if (day.temp !== undefined ) formattedDay.temp = day.temp;; 
+            if (day.temp !== undefined ) formattedDay.temp = day.temp;
+            if (timestamp !== undefined) formattedDay.date = timestamp;
+            if (timestamp !== undefined) formattedDay.formattedDate = timestamp.toDate().toDateString();
+            if (day.feels_like !== undefined) formattedDay.feels_like = day.feels_like;
+            if (day.pressure !== undefined) formattedDay.pressure = day.pressure;
+            if (day.humidity !== undefined) formattedDay.humidity = day.humidity;
+            if (day.wind_speed !== undefined) formattedDay.wind_speed = day.wind_speed;
+            if (day.wind_deg !== undefined) formattedDay.wind_deg = day.wind_deg;
+            if (day.weather !== undefined) formattedDay.weather = day.weather;
+            if (day.clouds !== undefined) formattedDay.clouds = day.clouds;
+            if (day.rain !== undefined) formattedDay.rain = day.rain;
+            if (nextSevenDays[index] !== undefined) formattedDay.day = nextSevenDays[index]
 
             return formattedDay;
         });
-
         return formattedData;
     } catch (error: any) {
         console.error('Error:', error.message);

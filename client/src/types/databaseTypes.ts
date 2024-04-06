@@ -59,6 +59,7 @@ type UserEdit = {
 }
 
 type Weather = {
+    formattedDate?: string | undefined,
     weather?: any,
     temp?: any | undefined, 
     pressure?: float| number | undefined, 

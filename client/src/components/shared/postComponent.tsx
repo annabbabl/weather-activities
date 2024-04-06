@@ -86,8 +86,7 @@ const PostComponent = forwardRef<HTMLDivElement, PostComponentProps>(({
   const [likeAmount, setLikeAmount] = useState(post?.likes?.amount ? post.likes.amount : 0)
   
   const [saved, setSaved] = useState( (savedPosts?.find(postID => postID === post.id)) ? true: false)
-
-  
+  const ownUser = post.createdBy === currentUser?.uid ? true: false; 
   const date = post.cretaedOn ? new Date(post.cretaedOn.seconds * 1000): new Date()
 
   const formattedDate = [
@@ -211,7 +210,7 @@ const PostComponent = forwardRef<HTMLDivElement, PostComponentProps>(({
   return (
     <Card sx={{ maxWidth: 800, marginTop: 3, minWidth: 400}} ref={ref}>
         <CardHeader
-          subheader={t("createdOn")+ formattedDate.toString()}
+          subheader={t("createdOn")+ " "+ formattedDate.toString()}
         />
       {post.img && ( 
         <CardMedia
@@ -247,17 +246,21 @@ const PostComponent = forwardRef<HTMLDivElement, PostComponentProps>(({
         </div>
       </CardContent>
       <CardActions disableSpacing onClick={likePost}>
-        {likes && (
-          <Button variant="text" style={{ color: GOOD_WEATHER_COLORS.thirdColor }} startIcon={liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}>
-            {likeAmount}
-          </Button>
+        {!ownUser && (
+           likes && (
+            <Button variant="text" style={{ color: GOOD_WEATHER_COLORS.thirdColor }} startIcon={liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}>
+              {likeAmount}
+            </Button>
+          )
         )}
         <IconButton aria-label="save" onClick={savePost} style={{ color: GOOD_WEATHER_COLORS.thirdColor }}>
-              {saved ? (
-                <BookmarkIcon />
-              ) : (
-                <BookmarkBorderIcon />
-              )}
+        {!ownUser && (
+            saved ? (
+              <BookmarkIcon />
+            ) : (
+              <BookmarkBorderIcon />
+            )
+        )}
         </IconButton>
       </CardActions>
     </Card>

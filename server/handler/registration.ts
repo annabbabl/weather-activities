@@ -1,7 +1,6 @@
 import express from 'express';
 import { FIRESTORE, FIRE_ADMIN } from '../firebase.config';
-import { UserEdit } from '../databaseTypes';
-
+import { UserEdit } from '../utils/databaseTypes';
 
 
 const registrationRouter = express.Router();

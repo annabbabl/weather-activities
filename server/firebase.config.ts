@@ -21,6 +21,7 @@ export const FIRE_ADMIN = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
   storageBucket: 'weatherapp-1243f.appspot.com'
 });
+
 export const FIREBASE_APP = initializeApp(firebaseConfig);
 export const FIREBASE_AUTH = FIRE_ADMIN.auth();
 export const FIRESTORE = FIRE_ADMIN.firestore();

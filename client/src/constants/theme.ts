@@ -53,7 +53,7 @@ const IMAGES = {
     sun: "./Sun.svg",
     snow: "./Snow.svg",
     cloud: "/Cloud.svg",
-    icon: "/icon.svg",
+    icon: "/logo.svg",
 };
 
 const IMAGE_STYLE_COVER={
