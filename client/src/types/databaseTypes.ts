@@ -1,83 +1,53 @@
 
-//custom type definitions
+type UserStatus = "user" | "admin" | "candidate";
 
-type WeatherPlace = {
-    weather: Array<any>,
-    temp: Array<any> |undefined, 
-    pressure: float| number | undefined, 
-    humidity: float| number | undefined, 
-    wind_speed: float| number | undefined, 
-    wind_deg: float | number | undefined, 
-    clouds: float | number | undefined, 
-    rain: float | number | undefined, 
-    startDate? : any, 
-    endDate? : any, 
-    day: string
-}
-
-type Post = {
-    createdBy: string,
-    created_at: any, 
-    content: string, 
-    title: string, 
-    likes: number
-}
-type PostEdit = {
-    id? : string, 
-    text? : string, 
-    createdBy?: string,
-    city?: string, 
-    weather?: Weather, 
-    content?: string, 
-    title?: string, 
-    likes?: Like, 
-    img?: string,
-    createdFor? : any, 
-    cretaedOn? : any, 
-    userImage?: string | null | undefined, 
-    username?: string | null | undefined, 
-    userId?: string | null | undefined, 
-}
-
-type Like = {
-    amount?: number, 
-    likedUser?: Array<string>
-}
-
-type UserEdit = {
-    id? : string, 
-    uid? : string, 
+type UserInformation = {
+    uid?: string,
+    userStatus?: UserStatus, 
     email?: string, 
     password?: string, 
-    username?: string, 
-    displayName?: string, 
-    created_at?: any, 
-    loggedIn?: boolean
-    profilePicture?: string,
-    savedPosts?: Array<string>,
-    allowedLocation?: boolean
+    displayName: string, 
+    candidateInformation?: CandidateInformation,
+    elected?: boolean
+}
+type VotingOption = {
+    candidateUID?: string,
+    theses: Array<Thesis>;
 }
 
-type Weather = {
-    formattedDate?: string | undefined,
-    weather?: any,
-    temp?: any | undefined, 
-    pressure?: float| number | undefined, 
-    humidity?: float| number | undefined, 
-    wind_speed?: float| number | undefined, 
-    wind_deg?: float | number | undefined, 
-    clouds?: float | number | undefined, 
-    rain?: float | number | undefined, 
-    creationDate?: Date, 
-    day?: string, 
-    date? : Date
+type UserVote = {
+    candidateUID?: string,
+    round: number;
+}
+
+type CandidateInformation = {
+    theses?: Array<Thesis>;
+    description?: string,
+    avatarUrl?: string, 
+    personalInformation?: Array<PersonalInformation>;
+    points?: number;
+    winningStatus?: number;
+};
+
+type Thesis = {
+    thesis: string, 
+    opinion: string,
+    solution?: string,
+    plan?: string,
+    tag: string
+}
+type PersonalInformation = {
+    category: string, 
+    information: string, 
 }
 
 export type {
-    UserEdit, 
-    Post, 
-    PostEdit,
-    WeatherPlace, 
-    Weather,
-    Like as Likes
+    UserStatus, 
+    UserInformation, 
+    VotingOption,
+    UserVote,
+    CandidateInformation,
+    Thesis,
+    PersonalInformation
 }
+

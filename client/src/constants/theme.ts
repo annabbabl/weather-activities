@@ -1,48 +1,10 @@
 //Constants for styling
 
-const GOOD_WEATHER_COLORS = {
+const COLORS = {
     background: "#F0FAFF",
     thirdColor: "#1d4ed8",
     secondaryColor: "#c7d2fe",
     forthColor: '#ffce32', 
-};
-const BAD_WEATHER_COLORS = {
-    background: "#C3CEDA",
-    thirdColor: "#0C4160",
-    secondaryColor: "#738FA7",
-    forthColor: '#071330', 
-};
-
-const SNOW_COLORS = {
-    background: "#E8EEF1",
-    secondaryColor: "#738FA7",
-    thirdColor: "#0C4160", 
-    forthColor: "#071330", 
-};
-
-const FONT_COLORS = {
-    white: "#FFFFFF",
-    black: "#000000",
-    blue: "#00008B",
-    fontFamily: "Sans-Serif"
-};
-
-const FONT_SIZES = {
-    header: 40,
-    postHeader: 30,
-    normal: 32, 
-};
-const BORDER_SIZES = {
-    small: 3,
-    normal: 5,
-};
-
-const OPACITIES = {
-    background: "#F0FAFF",
-    thirdColor: "#3A3A9F",
-    secondaryCOlor: "#B4D9E9",
-    lightYellow: '#FFEA7C', 
-    darkYellow: '#FFD700'
 };
 
 const SHADOWS = {
@@ -50,34 +12,15 @@ const SHADOWS = {
 };
 
 const IMAGES = {
-    sun: "./Sun.svg",
     snow: "./Snow.svg",
     cloud: "/Cloud.svg",
-    icon: "/logo.svg",
+    icon: "/icon.svg",
 };
 
-const IMAGE_STYLE_COVER={
-    backgroundSize: 'cover', 
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center' 
-}
-const IMAGE_STYLE_CONTAIN={
-    backgroundSize: 'contain',
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center' 
-}
 
 
 export {
-    GOOD_WEATHER_COLORS, 
-    BAD_WEATHER_COLORS,
-    SNOW_COLORS,
-    FONT_COLORS, 
-    FONT_SIZES,
-    BORDER_SIZES,
-    OPACITIES,
     SHADOWS, 
     IMAGES, 
-    IMAGE_STYLE_COVER, 
-    IMAGE_STYLE_CONTAIN
+    COLORS
 }

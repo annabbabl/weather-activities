@@ -1,72 +1,43 @@
-import { User } from "firebase/auth"
-import { Timestamp } from "firebase-admin/firestore"; 
 
-//custom type definitions
-
-type UserEdit = {
-    id? : string, 
-    uid? : string, 
+type UserInformation = {
+    uid: string, 
+    userStatus: "user" | "admin" | "candidate", 
     email?: string, 
     password?: string, 
-    username?: string, 
     displayName?: string, 
-    created_at?: any, 
-    loggedIn?: boolean
-    profilePicture?: string,
-    savedPosts?: Array<string>,
-    allowedLocation?: boolean
+    candidateInformation?: CandidateInformation, 
+    elected?: boolean
 }
 
-type  Likes = {
-    amount?: number, 
-    likedUser?: Array<string>
-}
+type CandidateInformation ={
+    theses: Array<Thesis>;
+    description: string
+    personalInformation: Array<PersonalInformation>;
+    avatarUrl: string, 
+    points?: number;
+    winningStatus?: number;
+};
 
-type Weather = {
-    formattedDate? : string | undefined, 
-    weather?: any,
-    temp?: any | undefined, 
-    pressure?: float| number | undefined, 
-    humidity?: float| number | undefined, 
-    wind_speed?: float| number | undefined, 
-    wind_deg?: float | number | undefined, 
-    clouds?: float | number | undefined, 
-    rain?: float | number | undefined, 
-    startDate? : any |  Timestamp, 
-    endDate? : any |  Timestamp , 
-    day?: string | undefined, 
-    date? : Timestamp | undefined
-    feels_like? : any | undefined
+type Thesis = {
+    thesis: string, 
+    opinion: string,
+    solution?: string,
+    plan?: string,
+    tag?: string
 }
-
-type PostEdit = {
-    id? : string, 
-    createdBy?: string,
-    endDate? : any, 
-    city?: string, 
-    weather?: Weather, 
-    content?: string, 
-    title?: string, 
-    likes?: Likes, 
-    createdFor? : string, 
-    cretaedOn? : any, 
-    userImage?: string | null | undefined, 
-    username?: string | null | undefined, 
-    userId?: string | null | undefined, 
+type PersonalInformation = {
+    category: string, 
+    information: string, 
 }
-
-type Post = {
-    createdBy: string,
-    created_at: any, 
-    content: string, 
-    title: string, 
-    likes: number
+type VoteOccurrences = {
+    candidateUID: string, 
+    amount: number, 
 }
 
 export type {
-    User,
-    UserEdit, 
-    Post, 
-    PostEdit,
-    Weather
+    UserInformation, 
+    CandidateInformation,
+    Thesis,
+    PersonalInformation, 
+    VoteOccurrences
 }

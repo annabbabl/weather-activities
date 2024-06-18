@@ -1,105 +1,66 @@
-import {
-    Card,
-    Input,
-    Button,
-    Typography,
-  } from "@material-tailwind/react";
 import React, { useState } from "react";
-import '../constants/i18next'
+import { Card, Input, Button } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
 import { StandartBlueWave } from "../components/shared/waves";
-import { Link } from "react-router-dom";
-import { useNavigate } from 'react-router-dom'; 
-import {SetAlert} from "../constants/popUps";
+import { Link, useNavigate } from "react-router-dom"; 
+import { SetAlert } from "../constants/popUps";
 import { DefautlProps } from "../types/component.props";
 import Loading from "../components/shared/loadingScreen";
 import { FIREBASE_AUTH } from "../firebase.config";
 import { signInWithEmailAndPassword } from "firebase/auth";
-
-/**
- * Functional React component for the login page.
- * This component provides a user interface for signing in with email and password using Firebase Authentication.
- * It displays a form for the user to input their credentials and submit for authentication.
- * Error and success messages are managed through props and displayed using the SetAlert component.
- * The user is navigated to the profile page upon successful login.
- *
- * @component
- * @example
- * <Login 
- *   setError={setError}
- *   setMessage={setMessage}
- *   message="Incorrect login details"
- *   error={true}
- * />
- *
- * @param {DefautlProps} props - The properties passed to the Login component.
- * @param {Function} props.setError - Setter function to update the error state.
- * @param {Function} props.setMessage - Setter function to update the message state.
- * @param {string} props.message - Current message to be displayed as feedback.
- * @param {boolean} props.error - Indicates if there is an error state.
- * @returns {React.ReactElement} A React component for the login screen.
- */
-
+import { TypographyH3, TypographyH6 } from "../components/components";
 
 export function Login({ setError, setMessage, message, error }: DefautlProps) {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
+  const navigate = useNavigate(); 
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-    const navigate = useNavigate(); 
+  const handleLogin = async () => {
+    setLoading(true);
 
-    const [loading, setLoading] = useState(false);
+    try {
+      const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
+      const idToken = await userCredential.user.getIdToken();
 
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+      const response = await fetch('http://localhost:3001/login', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idToken }),
+      });
 
+      const data = await response.json();
 
-    const handleLogin = async () => {
-      setLoading(true);
-    
-      try {
-        const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
-        const idToken = await userCredential.user.getIdToken(); 
-    
-        const response = await fetch('http://localhost:3001/login', {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ idToken }),
-        });
-    
-        const data = await response.json();
-        
-        if (response.ok) {
-          console.log(data);
-          navigate('/profile');
-          setMessage?.(t('signUpSuccessfull'));
-          setError?.(false);
-        } else {
-          throw new Error(data.message || 'Login failed');
-        }
-        setMessage?.("")
-        setError?.(false)
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
+      if (response.ok) {
+        console.log(data);
+        navigate('/');
+        setMessage?.(t('signUpSuccessfull'));
+        setError?.(false);
+      } else {
+        throw new Error(data.message || 'Login failed');
       }
-    };
-    
-    return (
-      <div className="flex flex-col justify-between items-center h-screen">
-         {!loading ? (
-          <><div className="justify-center mt-5">
+    } catch (error) {
+      console.error(error);
+      setMessage?.('An error occurred');
+      setError?.(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  return (
+    <div className="flex flex-col justify-between items-center h-screen">
+      {!loading ? (
+        <>
+          <div className="justify-center mt-5">
             <Card color="transparent" shadow={false} placeholder={"form"}>
-              <Typography variant="h4" className="text-blue-700" placeholder={t('signUp')}>
-                {t('signIn')}
-              </Typography>
-              <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96 shadow-[0_3px_10px_rgb(0,0,0,0.2)] border-blue-700 border-4 px-8 py-4">
+              <TypographyH3 text="signIn" />
+              <form className="mt-1 w-80 max-w-screen-lg sm:w-96 shadow-[0_3px_10px_rgb(0,0,0,0.2)] border-black border-4 px-8 py-4">
                 <div className="mb-1 flex flex-col gap-6">
-                  <Typography variant="h6" className="-mb-3 text-blue-700" placeholder={t('username')}>
-                    {t('email')}
-                  </Typography>
+                  <TypographyH6 text="email" />
                   <Input
                     size="lg"
                     value={email}
@@ -109,9 +70,7 @@ export function Login({ setError, setMessage, message, error }: DefautlProps) {
                     labelProps={{
                       className: "before:content-none after:content-none",
                     }} crossOrigin={undefined} />
-                  <Typography variant="h6" className="-mb-3 text-blue-700" placeholder={t('password')}>
-                    {t('password')}
-                  </Typography>
+                  <TypographyH6 text="password" />
                   <Input
                     type="password"
                     autoComplete="on"
@@ -124,22 +83,26 @@ export function Login({ setError, setMessage, message, error }: DefautlProps) {
                       className: "before:content-none after:content-none",
                     }} crossOrigin={undefined} />
                 </div>
-                <Button className="mt-20 bg-blue-700 text-white w-full" loading={loading} placeholder={t('signIn')} onClick={handleLogin}>
+                <Button className="mt-10 bg-black text-white w-full" onClick={handleLogin} placeholder={t('signIn')}>
                   {t('signIn')}
                 </Button>
-                <Typography color="gray" className="mt-4 text-center font-normal" placeholder={t('haveNoAccount')}>
-                  {t('haveNoAccount')}{" "}
-                  <Link to="/registration" color="blue" style={{ color: "blue" }}>{t('signIn')}</Link>
-                </Typography>
+                <div className="flex flex-row">
+                  <TypographyH6 text="haveNoAccount"/>
+                  <Link to="/registration" className="text-blue-600 hover:text-blue-800 ml-2">
+                    {t('register')}
+                  </Link>
+                </div>
               </form>
             </Card>
-          </div><SetAlert error={error} message={(message ? message : "")} /><div className="flex justify-end w-screen h-80">
-              <StandartBlueWave />
-            </div></>
-        ): (
-          <Loading />
-        )}
+          </div>
+          <SetAlert error={error} message={message ? message : ""} />
+          <div className="flex justify-end w-screen h-80">
+            <StandartBlueWave />
+          </div>
+        </>
+      ) : (
+        <Loading />
+      )}
     </div>
-    );
-  }
-  
+  );
+}

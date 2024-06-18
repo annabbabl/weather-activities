@@ -12,24 +12,6 @@ interface DefautlProps  {
 
 }
 
-interface AuthProps extends DefautlProps {
-    username?: string, 
-    password?: string,
-    email?: string,
-    imgUrl? : string,
-    setEmail?: React.Dispatch<React.SetStateAction<string | null | undefined>>;
-    setPassword?: React.Dispatch<React.SetStateAction<string>>;
-    setUsername?: React.Dispatch<React.SetStateAction<string | null | undefined>>;
-    setPath?: React.Dispatch<React.SetStateAction<string>>;
-}
-interface DropdwonProps extends DefautlProps {
-    items: Array<string>, 
-    title: string, 
-    handleClick?: React.Dispatch<React.SetStateAction<any>>;
-}
-
 export type {
     DefautlProps,
-    AuthProps,
-    DropdwonProps
 }

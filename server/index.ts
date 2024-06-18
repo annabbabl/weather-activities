@@ -3,10 +3,10 @@ import path from 'path';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import { registrationRouter } from './handler/registration';
-import { profileRouter } from './handler/profile';
-import { messagesRouter } from './handler/message';
 import { indexRouter } from './handler/indexHandler';
+import { profileRouter } from './handler/profile';
+import registrationRouter from './handler/registration'; // Import the default export
+import electionRouter from './handler/election';
 
 dotenv.config();
 
@@ -28,9 +28,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/', indexRouter); // Index router
-app.use('/registration', registrationRouter); // Registration router
 app.use('/profile', profileRouter); // Profile router
-app.use('/messages', messagesRouter); // Message router
+app.use('/registration', registrationRouter); 
+app.use('/election', electionRouter); 
 
 app.use(function(err: ErrorWithStatus, req: Request, res: Response, next: NextFunction) {
   res.locals.message = err.message;

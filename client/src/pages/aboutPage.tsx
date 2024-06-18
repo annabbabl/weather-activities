@@ -1,73 +1,137 @@
-/* eslint-disable jsx-a11y/img-redundant-alt */
 import {
     Typography,
-  } from "@material-tailwind/react";
-import '../constants/i18next'
+    List,
+    ListItem,
+    ListItemSuffix,
+    Card,
+    Button
+} from "@material-tailwind/react";
+import '../constants/i18next';
 import { useTranslation } from "react-i18next";
 import { StandartBlueWave } from "../components/shared/waves";
-import { ParallaxProvider, useParallax } from 'react-scroll-parallax';
-import { IMAGES, IMAGE_STYLE_CONTAIN } from "../constants/theme";
+import { ParallaxProvider } from 'react-scroll-parallax';
+import { DateRange, MyLocation } from '@mui/icons-material';
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { FIREBASE_AUTH } from "../firebase.config";
+import { onAuthStateChanged } from "firebase/auth";
+import { TypographyH2, TypographyH3, TypographyParagraph } from "../components/components";
+import Loading from "react-loading";
+import { checkDate } from "../utils/functions";
+import { FinalElement } from "../components/finalStage";
 
-interface ComponentProps {
-    text:string
-    startPos: number
-    endPos: number, 
-    image: string
-}
-
-
-/**
- * A Parallax Component that animates elements based on scroll position.
- * This component uses 'react-scroll-parallax' to apply a horizontal parallax effect to the text content.
- * 
- * @component
- * @param {ComponentProps} props - The properties passed to the Component.
- * @param {string} props.text - The text content to be displayed and animated in the component.
- * @param {number} props.startPos - The starting position for the horizontal translation during the scroll.
- * @param {number} props.endPos - The ending position for the horizontal translation during the scroll.
- * @returns {JSX.Element} A div element containing the animated text content.
- *
- * @example
- * <Component text="Hello, world!" startPos={-20} endPos={20} />
- */
-function Component({ text, startPos, endPos, image }: ComponentProps): JSX.Element {
-    const parallax = useParallax<HTMLDivElement>({
-      easing: 'easeOutQuad',
-      translateX: [startPos, endPos],
-    });
-    return (
-        <div ref={parallax.ref} className="w-5/6 text-left mt-48" style={{...IMAGE_STYLE_CONTAIN, backgroundImage: `url(${image})`}}>
-            <Typography variant="paragraph" className="text-blue-700 text-5xl" placeholder="description" textGradient >
-                {text}
-            </Typography>
-            <StandartBlueWave />
-        </div>
-    );
-}
-
-/**
- * The About Page component that displays information about the website or user.
- * This page utilizes a Parallax effect to create a more dynamic viewing experience.
- * Text information on this page is internationalized to support multiple languages.
- *
- * @component
- * @example
- * <AboutPage />
- *
- * @returns {React.ReactElement} A React component representing the about page of the website.
- */
-export default function AboutPage() {
+export default function Homepage() {
     const { t } = useTranslation();
+    const navigate = useNavigate(); 
+    const [loading, setLoading] = useState(true);
+    const [winnerExists, setWinnerExists] = useState<boolean | undefined>();
+
+    const [loggedIn, setLoggedIn] = useState(false);
+    const logginOrStartTxt = !loggedIn ? "loginOrRegister" : "startNow";
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
+            if (user) {
+                setLoggedIn(true);
+            } else {
+                setLoggedIn(false);
+            }
+            setLoading(false); // Set loading to false after user state is checked
+        });
+
+        setWinnerExists(checkDate());
+
+        return () => unsubscribe();
+    }, []);
+
+    if (loading) {
+        return <Loading />;
+    }
 
     return (
-        <><img src={IMAGES.icon} alt="Icon" /><div className='mt-12 mb-5 w-5/6 flex flex-col items-center'>
-            <Typography className="text-blue-700 text-8xl font-extrabold" placeholder={t('username')}>
-                {t('about')}
-            </Typography>
-            <ParallaxProvider>
-                <Component text={t('infoText')} startPos={-20} endPos={15} image={IMAGES.sun} />
-                <Component text={t('aboutMeText')} startPos={0} endPos={30} image={IMAGES.cloud} />
-            </ParallaxProvider>
-        </div></>
+        <div className='flex flex-col justify-between h-screen'>
+            {!winnerExists ? (
+                <>
+                    <div className='mt-12 mb-5 w-full flex flex-col px-8'>
+                        <div className="flex flex-col items-center w-full mb-8">
+                            <Typography className="text-leftblue-700 text-left8xl font-extrabold text-left" variant="h1" placeholder={t('username')}>
+                                {t('electYourFuture')}
+                            </Typography>
+                        </div>
+                        <ParallaxProvider>
+                            <TypographyParagraph text='electionText' />
+                            <div className="flex flex-col items-center w-full mt-6">
+                                <Card className="flex flex-col items-center w-96 mt-6 ml-6" placeholder={t("coreInformation")}>
+                                    <List placeholder={t("coreInformation")} className="ml-6">
+                                        <ListItem ripple={false} className="py-1 pr-1 pl-4 " placeholder={t("electionDate")}>
+                                            <TypographyH3 text={'coreInformation'} />
+                                        </ListItem>
+                                        <ListItem ripple={false} className="py-1 pr-1 pl-4" placeholder={t("electionDate")}>
+                                            {t("electionDate")}
+                                            <ListItemSuffix placeholder={undefined}>
+                                                <DateRange />
+                                            </ListItemSuffix>
+                                        </ListItem>
+                                        <ListItem ripple={false} className="py-1 pr-1 pl-4" placeholder={t("where")}>
+                                            {t("where")}
+                                            <ListItemSuffix placeholder={undefined}>
+                                                <MyLocation />
+                                            </ListItemSuffix>
+                                        </ListItem>
+                                    </List>
+                                </Card>
+                            </div>
+                            <TypographyH3 text={'howDoesTheElectionWorkHeader'} />
+                            <TypographyParagraph text='howDoesTheElectionWork' />
+                            <TypographyH3 text={'electionProcedureHeader'} />
+                            <ul>
+                                <li>
+                                    <TypographyParagraph text='electionProcedure1' />
+                                </li>
+                                <li>
+                                    <TypographyParagraph text='electionProcedure2' />
+                                </li>
+                                <li>
+                                    <TypographyParagraph text='electionProcedure3' />
+                                </li>
+                            </ul>
+                            <TypographyH3 text={'electionAdvantagesHeader'} />
+                            <ul>
+                                <li>
+                                    <TypographyParagraph text='electionAdvantages1' />
+                                </li>
+                                <li>
+                                    <TypographyParagraph text='electionAdvantages2' />
+                                </li>
+                                <li>
+                                    <TypographyParagraph text='electionAdvantages3' />
+                                </li>
+                            </ul>
+                        </ParallaxProvider>
+                        <div className="mb-12 mt-8 flex flex-col items-center w-full mb-8">
+                            <TypographyH2 text={logginOrStartTxt} />
+                            <TypographyParagraph text='participationAlert' />
+                            <Button 
+                                variant="gradient"
+                                placeholder={t(logginOrStartTxt)} 
+                                size="lg"
+                                color="blue"
+                                onClick={() =>{logginOrStartTxt ==="startNow" ? navigate("/startElection") : navigate("/login")}}
+                            >
+                                {t(logginOrStartTxt)}
+                            </Button>
+                        </div>
+                    </div>
+                    <div className="w-full mt-auto">
+                        <StandartBlueWave />
+                    </div>
+                </>
+            ) : (
+                <div>
+                    <FinalElement text={"votingIsOver"} link={"/analytics"} />
+                    
+                </div>
+            )}
+        </div>
     );
 }
